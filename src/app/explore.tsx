@@ -36,7 +36,8 @@ export default function TabTwoScreen() {
     <ScrollView
       style={[styles.scrollView, { backgroundColor: theme.background }]}
       contentInset={insets}
-      contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}>
+      contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}
+    >
       <ThemedView style={styles.container}>
         <ThemedView style={styles.titleContainer}>
           <ThemedText type="subtitle">Explore</ThemedText>
@@ -50,7 +51,11 @@ export default function TabTwoScreen() {
                 <ThemedText type="link">Expo documentation</ThemedText>
                 <SymbolView
                   tintColor={theme.text}
-                  name={{ ios: 'arrow.up.right.square', android: 'link', web: 'link' }}
+                  name={{
+                    ios: 'arrow.up.right.square',
+                    android: 'link',
+                    web: 'link',
+                  }}
                   size={12}
                 />
               </ThemedView>
