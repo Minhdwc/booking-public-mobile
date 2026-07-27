@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type AxiosRequestConfig } from 'axios';
 
 import {
   clearApiTokens,
@@ -12,13 +12,21 @@ import type { ApiErrorBody, ApiResponse, RefreshResponse } from './response';
 
 export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
 
+type ApiClient = {
+  get<T>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>;
+  put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>;
+  patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>;
+  delete<T>(url: string, config?: AxiosRequestConfig): Promise<T>;
+};
+
 let onLogout: (() => void) | null = null;
 
 export function setUnauthorizedHandler(callback: () => void) {
   onLogout = callback;
 }
 
-export const apiClient = axios.create({
+const axiosClient = axios.create({
   baseURL: API_URL,
   timeout: 15000,
   headers: {
@@ -27,7 +35,7 @@ export const apiClient = axios.create({
   },
 });
 
-apiClient.interceptors.request.use((config) => {
+axiosClient.interceptors.request.use((config) => {
   const token = getAccessToken();
 
   if (token) {
@@ -41,7 +49,7 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-apiClient.interceptors.response.use(
+axiosClient.interceptors.response.use(
   (response) => response.data.data,
 
   async (error) => {
@@ -83,7 +91,7 @@ apiClient.interceptors.response.use(
         await notifyTokensRefreshed(tokens.accessToken, tokens.refreshToken);
 
         originalRequest.headers.Authorization = `Bearer ${tokens.accessToken}`;
-        return apiClient(originalRequest);
+        return axiosClient(originalRequest);
       } catch {
         clearApiTokens();
         onLogout?.();
@@ -94,5 +102,7 @@ apiClient.interceptors.response.use(
     return Promise.reject(new ApiError(status ?? 500, message));
   },
 );
+
+export const apiClient = axiosClient as ApiClient;
 
 export default apiClient;

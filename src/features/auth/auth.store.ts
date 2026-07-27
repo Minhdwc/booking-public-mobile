@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 
-import { setUnauthorizedHandler } from '@/services/api';
-import { clearApiTokens, registerSaveTokens, setApiTokens } from '@/services/api/token';
-import { getMe } from '@/services/auth.service';
+import type { LoginForm, RegisterForm } from '@/features/auth/auth.type';
+import { authApi } from '@/features/auth/auth.api';
+import { setUnauthorizedHandler } from '@/services/http';
+import { clearApiTokens, registerSaveTokens, setApiTokens } from '@/services/http/token';
 import { authStorage } from '@/services/storage';
-import type { IUser } from '../../../types/index';
+import type { IUser } from '@/types';
 
 export const useAuthStore = create<{
   user: IUser | null;
@@ -17,6 +18,10 @@ export const useAuthStore = create<{
   logout: () => Promise<void>;
   updateTokens: (accessToken: string, refreshToken: string) => Promise<void>;
   updateUser: (user: IUser) => void;
+  signIn: (data: LoginForm) => Promise<void>;
+  signUp: (data: RegisterForm) => Promise<void>;
+  signOut: () => Promise<void>;
+  verifyEmailToken: (token: string) => Promise<string>;
   init: () => Promise<void>;
 }>((set, get) => ({
   user: null,
@@ -64,6 +69,35 @@ export const useAuthStore = create<{
     set({ user });
   },
 
+  signIn: async (data) => {
+    const session = await authApi.login(data);
+    await get().login(session.user as IUser, session.accessToken, session.refreshToken);
+  },
+
+  signUp: async (data) => {
+    const session = await authApi.register(data);
+    await get().login(session.user as IUser, session.accessToken, session.refreshToken);
+  },
+
+  signOut: async () => {
+    try {
+      await authApi.logout();
+    } finally {
+      await get().logout();
+    }
+  },
+
+  verifyEmailToken: async (token) => {
+    const result = await authApi.verifyEmail(token);
+
+    if (get().isLoggedIn) {
+      const user = await authApi.getMe();
+      set({ user: user as IUser });
+    }
+
+    return result.message;
+  },
+
   init: async () => {
     setUnauthorizedHandler(() => {
       void get().logout();
@@ -85,8 +119,8 @@ export const useAuthStore = create<{
     set({ accessToken, refreshToken, isLoggedIn: true });
 
     try {
-      const user = await getMe();
-      set({ user: user.data, isLoading: false });
+      const user = await authApi.getMe();
+      set({ user: user as IUser, isLoading: false });
     } catch {
       await get().logout();
     }
