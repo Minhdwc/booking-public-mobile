@@ -46,7 +46,13 @@ export const queryKeys = {
     delete: (id: string) => ['courts', 'delete', id],
   },
   sport: {
-    list: () => ['sports', 'list'],
+    list: () => ['sports', 'list'] as const,
+  },
+  search: {
+    venues: (params?: Record<string, unknown>) => ['search', 'venues', params ?? {}] as const,
+    suggestions: (q: string, limit?: number) => ['search', 'suggestions', q, limit ?? 8] as const,
+    popular: (limit?: number) => ['search', 'popular', limit ?? 8] as const,
+    recentlyViewed: () => ['search', 'recently-viewed'] as const,
   },
   notification: {
     list: () => ['notifications', 'list'],

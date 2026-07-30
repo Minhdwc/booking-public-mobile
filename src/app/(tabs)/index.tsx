@@ -8,8 +8,10 @@ import { QuickAction, QuickActionRow } from '@/components/home/quick-action';
 import { SectionHeader } from '@/components/home/section-header';
 import { VenueCard, VenueCardSkeleton } from '@/components/home/venue-card';
 import { VenueListEmpty, VenueListError } from '@/components/home/venue-list-states';
+import { PopularSearchSection } from '@/components/search/popular-search-chips';
 import { BottomTabInset } from '@/constants/theme';
 import { useAuth } from '@/features/auth/use-auth';
+import { usePopularSearches, useRecentlyViewed } from '@/features/search';
 import { useVenues } from '@/features/venues';
 
 export default function HomeScreen() {
@@ -20,6 +22,17 @@ export default function HomeScreen() {
     isError: isVenuesError,
     refetch: refetchVenues,
   } = useVenues({ page: 1, limit: 3 });
+
+  const { data: popularSearches = [], isLoading: isPopularLoading } = usePopularSearches(8);
+  const {
+    data: recentlyViewed = [],
+    isLoading: isRecentlyViewedLoading,
+    isError: isRecentlyViewedError,
+  } = useRecentlyViewed(isLoggedIn);
+
+  const handlePopularSearchSelect = (query: string) => {
+    router.push({ pathname: '/explore', params: { q: query } });
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F7F5EF' }} className="flex-1 bg-paper">
@@ -58,6 +71,55 @@ export default function HomeScreen() {
             </QuickActionRow>
           </View>
 
+          <View className="gap-3">
+            <SectionHeader
+              eyebrow="Khám phá"
+              title="Tìm kiếm phổ biến"
+              subtitle="Từ khóa được tìm nhiều nhất"
+            />
+            <PopularSearchSection
+              items={popularSearches}
+              isLoading={isPopularLoading}
+              onSelect={handlePopularSearchSelect}
+            />
+          </View>
+
+          {isLoggedIn ? (
+            <View className="gap-4">
+              <SectionHeader
+                eyebrow="Dành cho bạn"
+                title="Đã xem gần đây"
+                subtitle="Sân bạn vừa mở gần đây"
+              />
+
+              {isRecentlyViewedLoading ? (
+                <View className="gap-3">
+                  <VenueCardSkeleton compact />
+                  <VenueCardSkeleton compact />
+                </View>
+              ) : isRecentlyViewedError ? (
+                <Text className="text-sm text-mist">Không tải được lịch sử xem gần đây.</Text>
+              ) : recentlyViewed.length > 0 ? (
+                <View className="gap-3">
+                  {recentlyViewed.slice(0, 3).map((venue) => (
+                    <VenueCard
+                      key={venue.id}
+                      venue={venue}
+                      compact
+                      onPress={() =>
+                        router.push({ pathname: '/venues/[id]', params: { id: venue.id } })
+                      }
+                    />
+                  ))}
+                </View>
+              ) : (
+                <Text className="text-sm text-mist">
+                  Chưa có sân xem gần đây. Mở chi tiết sân để lưu lịch sử.
+                </Text>
+              )}
+            </View>
+          ) : null}
+
           <View className="gap-4">
             <SectionHeader
               eyebrow="Gợi ý"
@@ -79,7 +141,9 @@ export default function HomeScreen() {
                     key={venue.id}
                     venue={venue}
                     compact
-                    onPress={() => router.push({ pathname: '/venues/[id]', params: { id: venue.id } })}
+                    onPress={() =>
+                      router.push({ pathname: '/venues/[id]', params: { id: venue.id } })
+                    }
                   />
                 ))}
                 <Pressable onPress={() => router.push('/explore')} className="self-center py-2">

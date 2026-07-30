@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,42 +8,60 @@ import { AuthInput } from '@/components/auth/auth-input';
 import { SectionHeader } from '@/components/home/section-header';
 import { SportChip } from '@/components/home/sport-chip';
 import { VenueCard, VenueCardSkeleton } from '@/components/home/venue-card';
-import { VenueListEmpty, VenueListError } from '@/components/home/venue-list-states';
+import { SearchSuggestions } from '@/components/search/search-suggestions';
+import { EmptyState, ErrorState } from '@/components/ui';
 import { BottomTabInset } from '@/constants/theme';
-import { useVenues } from '@/features/venues';
+import {
+  filterVenuesBySport,
+  useExploreVenues,
+  useSearchSuggestions,
+  type SearchSuggestion,
+} from '@/features/search';
+import { useSports, type SportChipItem } from '@/features/sports';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 
-const SPORTS = [
-  { id: 'all', label: 'Tất cả', emoji: '🏟️' },
-  { id: 'badminton', label: 'Cầu lông', emoji: '🏸' },
-  { id: 'football', label: 'Bóng đá', emoji: '⚽' },
-  { id: 'tennis', label: 'Tennis', emoji: '🎾' },
-  { id: 'pickleball', label: 'Pickleball', emoji: '🏓' },
-] as const;
-
 export default function ExploreScreen() {
-  const [query, setQuery] = useState('');
-  const [selectedSport, setSelectedSport] = useState<(typeof SPORTS)[number]['id']>('all');
+  const { q: initialQuery } = useLocalSearchParams<{ q?: string }>();
+  const [query, setQuery] = useState(initialQuery ?? '');
+  const [selectedSportId, setSelectedSportId] = useState('all');
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const debouncedSearch = useDebouncedValue(query.trim(), 300);
 
-  const { data, isLoading, isError, refetch, isRefetching } = useVenues({
+  useEffect(() => {
+    if (typeof initialQuery === 'string' && initialQuery.length > 0) {
+      setQuery(initialQuery);
+    }
+  }, [initialQuery]);
+
+  const { data: sportsData, isLoading: isSportsLoading } = useSports();
+  const defaultSportOptions: SportChipItem[] = [{ id: 'all', label: 'Tất cả', emoji: '🏟️' }];
+  const sportOptions: SportChipItem[] = sportsData?.chipOptions ?? defaultSportOptions;
+
+  const selectedSportName = sportOptions.find((sport) => sport.id === selectedSportId)?.label;
+
+  const { data, isLoading, isError, refetch, isRefetching } = useExploreVenues({
     page: 1,
     limit: 20,
     search: debouncedSearch || undefined,
   });
 
+  const { data: suggestions = [] } = useSearchSuggestions(debouncedSearch, showSuggestions);
+
   const venues = useMemo(() => {
     const items = data?.data ?? [];
+    return filterVenuesBySport(items, selectedSportId, selectedSportName);
+  }, [data?.data, selectedSportId, selectedSportName]);
 
-    if (selectedSport === 'all') return items;
+  const handleSuggestionSelect = (suggestion: SearchSuggestion) => {
+    setShowSuggestions(false);
 
-    const sportLabel =
-      SPORTS.find((sport) => sport.id === selectedSport)?.label.toLowerCase() ?? '';
+    if (suggestion.type === 'venue' && suggestion.venueId) {
+      router.push({ pathname: '/venues/[id]', params: { id: suggestion.venueId } });
+      return;
+    }
 
-    return items.filter((venue) =>
-      venue.sportNames.some((name) => name.toLowerCase().includes(sportLabel)),
-    );
-  }, [data?.data, selectedSport]);
+    setQuery(suggestion.label);
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F7F5EF' }} className="flex-1 bg-paper">
@@ -55,7 +73,7 @@ export default function ExploreScreen() {
             ? 'Đang tải danh sách sân...'
             : isError
               ? 'Không kết nối được API'
-              : `${venues.length} sân khả dụng · dữ liệu từ API`
+              : `${venues.length} sân khả dụng · ${debouncedSearch ? 'Elasticsearch' : 'API venues'}`
         }
       />
 
@@ -69,33 +87,50 @@ export default function ExploreScreen() {
             <RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} />
           }
         >
-          <AuthInput
-            label="Tìm kiếm"
-            placeholder="Tên sân, quận, môn thể thao..."
-            value={query}
-            onChangeText={setQuery}
-            autoCapitalize="none"
-          />
+          <View className="relative z-10">
+            <AuthInput
+              label="Tìm kiếm"
+              placeholder="Tên sân, quận, môn thể thao..."
+              value={query}
+              onChangeText={setQuery}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+              autoCapitalize="none"
+            />
+            <SearchSuggestions
+              suggestions={suggestions}
+              visible={showSuggestions}
+              onSelect={handleSuggestionSelect}
+            />
+          </View>
 
           <View className="gap-3">
             <SectionHeader eyebrow="Bộ lọc" title="Môn thể thao" />
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {SPORTS.map((sport) => (
-                <SportChip
-                  key={sport.id}
-                  label={sport.label}
-                  emoji={sport.emoji}
-                  selected={selectedSport === sport.id}
-                  onPress={() => setSelectedSport(sport.id)}
-                />
-              ))}
+              {isSportsLoading ? (
+                <>
+                  <View className="mr-2 h-10 w-24 rounded-full bg-ink/10 dark:bg-paper/10" />
+                  <View className="mr-2 h-10 w-28 rounded-full bg-ink/10 dark:bg-paper/10" />
+                  <View className="mr-2 h-10 w-24 rounded-full bg-ink/10 dark:bg-paper/10" />
+                </>
+              ) : (
+                sportOptions.map((sport) => (
+                  <SportChip
+                    key={sport.id}
+                    label={sport.label}
+                    emoji={sport.emoji}
+                    selected={selectedSportId === sport.id}
+                    onPress={() => setSelectedSportId(sport.id)}
+                  />
+                ))
+              )}
             </ScrollView>
           </View>
 
           <View className="gap-4">
             <SectionHeader
               eyebrow="Gợi ý hôm nay"
-              title="Sân nổi bật gần bạn"
+              title={debouncedSearch ? 'Kết quả tìm kiếm' : 'Sân nổi bật gần bạn'}
               subtitle={`${venues.length} sân phù hợp`}
             />
 
@@ -105,7 +140,11 @@ export default function ExploreScreen() {
                 <VenueCardSkeleton />
               </>
             ) : isError ? (
-              <VenueListError onRetry={() => void refetch()} />
+              <ErrorState
+                title="Không tải được danh sách sân"
+                message="Kiểm tra kết nối mạng và API URL, rồi thử lại."
+                onRetry={() => void refetch()}
+              />
             ) : venues.length > 0 ? (
               venues.map((venue) => (
                 <VenueCard
@@ -115,7 +154,16 @@ export default function ExploreScreen() {
                 />
               ))
             ) : (
-              <VenueListEmpty onRetry={() => void refetch()} />
+              <EmptyState
+                title="Chưa có sân phù hợp"
+                message={
+                  debouncedSearch
+                    ? 'Thử từ khóa khác hoặc bỏ bộ lọc môn thể thao.'
+                    : 'Thử tìm từ khóa khác hoặc quay lại sau khi có thêm sân active.'
+                }
+                actionLabel="Thử lại"
+                onAction={() => void refetch()}
+              />
             )}
           </View>
 
