@@ -1,13 +1,17 @@
-import { useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { useMemo, useState } from 'react';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthHero } from '@/components/auth/auth-hero';
 import { AuthInput } from '@/components/auth/auth-input';
 import { SectionHeader } from '@/components/home/section-header';
 import { SportChip } from '@/components/home/sport-chip';
-import { VenueCard, type VenuePreview } from '@/components/home/venue-card';
+import { VenueCard, VenueCardSkeleton } from '@/components/home/venue-card';
+import { VenueListEmpty, VenueListError } from '@/components/home/venue-list-states';
 import { BottomTabInset } from '@/constants/theme';
+import { useVenues } from '@/features/venues';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 
 const SPORTS = [
   { id: 'all', label: 'Tất cả', emoji: '🏟️' },
@@ -17,61 +21,42 @@ const SPORTS = [
   { id: 'pickleball', label: 'Pickleball', emoji: '🏓' },
 ] as const;
 
-const FEATURED_VENUES: VenuePreview[] = [
-  {
-    id: '1',
-    name: 'Green Court Quận 7',
-    sport: 'Cầu lông',
-    distance: '1.2 km',
-    price: '120k/giờ',
-    rating: '4.8',
-    slots: 'Còn 3 slot tối nay',
-  },
-  {
-    id: '2',
-    name: 'Saigon Football Hub',
-    sport: 'Bóng đá 5',
-    distance: '2.4 km',
-    price: '350k/giờ',
-    rating: '4.6',
-    slots: 'Còn 1 sân 19:00',
-  },
-  {
-    id: '3',
-    name: 'River Side Tennis',
-    sport: 'Tennis',
-    distance: '3.1 km',
-    price: '180k/giờ',
-    rating: '4.9',
-    slots: 'Sáng mai còn trống',
-  },
-];
-
 export default function ExploreScreen() {
   const [query, setQuery] = useState('');
   const [selectedSport, setSelectedSport] = useState<(typeof SPORTS)[number]['id']>('all');
+  const debouncedSearch = useDebouncedValue(query.trim(), 300);
 
-  const filteredVenues = FEATURED_VENUES.filter((venue) => {
-    const matchesQuery =
-      query.trim().length === 0 ||
-      venue.name.toLowerCase().includes(query.toLowerCase()) ||
-      venue.sport.toLowerCase().includes(query.toLowerCase());
-
-    const matchesSport =
-      selectedSport === 'all' ||
-      venue.sport.toLowerCase().includes(
-        SPORTS.find((sport) => sport.id === selectedSport)?.label.toLowerCase() ?? '',
-      );
-
-    return matchesQuery && matchesSport;
+  const { data, isLoading, isError, refetch, isRefetching } = useVenues({
+    page: 1,
+    limit: 20,
+    search: debouncedSearch || undefined,
   });
 
+  const venues = useMemo(() => {
+    const items = data?.data ?? [];
+
+    if (selectedSport === 'all') return items;
+
+    const sportLabel =
+      SPORTS.find((sport) => sport.id === selectedSport)?.label.toLowerCase() ?? '';
+
+    return items.filter((venue) =>
+      venue.sportNames.some((name) => name.toLowerCase().includes(sportLabel)),
+    );
+  }, [data?.data, selectedSport]);
+
   return (
-    <View className="bg-paper dark:bg-ink flex-1">
+    <View style={{ flex: 1, backgroundColor: '#F7F5EF' }} className="flex-1 bg-paper">
       <AuthHero
         eyebrow="Khám phá"
         title="Tìm sân phù hợp"
-        subtitle="Lọc theo môn thể thao, khu vực và khung giờ còn trống."
+        subtitle={
+          isLoading
+            ? 'Đang tải danh sách sân...'
+            : isError
+              ? 'Không kết nối được API'
+              : `${venues.length} sân khả dụng · dữ liệu từ API`
+        }
       />
 
       <SafeAreaView edges={['bottom']} className="flex-1">
@@ -80,6 +65,9 @@ export default function ExploreScreen() {
           style={{ paddingBottom: BottomTabInset + 24 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          refreshControl={
+            <RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} />
+          }
         >
           <AuthInput
             label="Tìm kiếm"
@@ -108,21 +96,26 @@ export default function ExploreScreen() {
             <SectionHeader
               eyebrow="Gợi ý hôm nay"
               title="Sân nổi bật gần bạn"
-              subtitle={`${filteredVenues.length} sân phù hợp`}
+              subtitle={`${venues.length} sân phù hợp`}
             />
 
-            {filteredVenues.length > 0 ? (
-              filteredVenues.map((venue) => <VenueCard key={venue.id} venue={venue} />)
+            {isLoading ? (
+              <>
+                <VenueCardSkeleton />
+                <VenueCardSkeleton />
+              </>
+            ) : isError ? (
+              <VenueListError onRetry={() => void refetch()} />
+            ) : venues.length > 0 ? (
+              venues.map((venue) => (
+                <VenueCard
+                  key={venue.id}
+                  venue={venue}
+                  onPress={() => router.push({ pathname: '/venues/[id]', params: { id: venue.id } })}
+                />
+              ))
             ) : (
-              <View className="border-ink/10 dark:border-paper/10 items-center rounded-3xl border px-6 py-10">
-                <Text className="text-4xl">🎾</Text>
-                <Text className="text-ink dark:text-paper mt-4 text-base font-extrabold">
-                  Không tìm thấy sân
-                </Text>
-                <Text className="text-mist mt-2 text-center text-sm leading-5">
-                  Thử đổi bộ lọc hoặc tìm từ khóa khác.
-                </Text>
-              </View>
+              <VenueListEmpty onRetry={() => void refetch()} />
             )}
           </View>
 
@@ -160,13 +153,13 @@ function TipCard({
   description: string;
 }) {
   return (
-    <View className="border-ink/10 dark:border-paper/10 flex-row gap-4 rounded-2xl border p-4">
-      <View className="bg-line h-10 w-10 items-center justify-center rounded-full">
-        <Text className="text-ink text-xs font-extrabold">{step}</Text>
+    <View className="flex-row gap-4 rounded-2xl border border-ink/10 p-4 dark:border-paper/10">
+      <View className="h-10 w-10 items-center justify-center rounded-full bg-line">
+        <Text className="text-xs font-extrabold text-ink">{step}</Text>
       </View>
       <View className="flex-1 gap-1">
-        <Text className="text-ink dark:text-paper text-sm font-extrabold">{title}</Text>
-        <Text className="text-mist text-sm leading-5">{description}</Text>
+        <Text className="text-sm font-extrabold text-ink dark:text-paper">{title}</Text>
+        <Text className="text-sm leading-5 text-mist">{description}</Text>
       </View>
     </View>
   );

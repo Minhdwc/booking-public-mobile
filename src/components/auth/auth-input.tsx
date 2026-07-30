@@ -10,11 +10,11 @@ export const AuthInput = forwardRef<TextInput, AuthInputProps>(function AuthInpu
 ) {
   return (
     <View className="gap-1.5">
-      <Text className="text-mist text-xs font-bold uppercase tracking-widest">{label}</Text>
+      <Text className="text-xs font-bold uppercase tracking-widest text-mist">{label}</Text>
       <TextInput
         ref={ref}
         placeholderTextColor="#8FA69B"
-        className={`border-ink/15 text-ink dark:border-paper/20 dark:text-paper border-b pb-2.5 text-base ${className}`}
+        className={`border-b border-ink/15 pb-2.5 text-base text-ink dark:border-paper/20 dark:text-paper ${className}`}
         {...props}
       />
     </View>

@@ -44,7 +44,7 @@ export default function RegisterScreen() {
   }
 
   return (
-    <View className="bg-paper dark:bg-ink flex-1">
+    <View className="flex-1 bg-paper dark:bg-ink">
       <Stack.Screen options={{ headerShown: false }} />
 
       <AuthHero
@@ -117,14 +117,14 @@ export default function RegisterScreen() {
               />
             </View>
 
-            {error ? <Text className="text-clay text-sm">{error}</Text> : null}
+            {error ? <Text className="text-sm text-clay">{error}</Text> : null}
 
             <AuthButton label="Đăng ký" loading={isSubmitting} onPress={handleRegister} />
 
             <View className="mt-2 flex-row justify-center">
-              <Text className="text-mist text-sm">Đã có tài khoản? </Text>
+              <Text className="text-sm text-mist">Đã có tài khoản? </Text>
               <Link href="/login">
-                <Text className="text-ink dark:text-paper text-sm font-extrabold">Đăng nhập</Text>
+                <Text className="text-sm font-extrabold text-ink dark:text-paper">Đăng nhập</Text>
               </Link>
             </View>
           </ScrollView>

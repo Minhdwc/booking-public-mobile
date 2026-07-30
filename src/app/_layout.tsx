@@ -1,35 +1,49 @@
+import 'react-native-gesture-handler';
 import '@/global.css';
 
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { QueryProvider } from '@/providers/query-provider';
 import { useAuthStore } from '@/features/auth';
 
-SplashScreen.preventAutoHideAsync();
+const APP_BACKGROUND = '#F7F5EF';
+
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const init = useAuthStore((state) => state.init);
-  const isLoading = useAuthStore((state) => state.isLoading);
 
   useEffect(() => {
+    SplashScreen.hideAsync().catch(() => {});
     void init();
   }, [init]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <QueryProvider>
-        {!isLoading && <AnimatedSplashOverlay />}
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="(auth)" />
-        </Stack>
-      </QueryProvider>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: APP_BACKGROUND }}>
+      <SafeAreaProvider>
+        <QueryProvider>
+          <View style={{ flex: 1, backgroundColor: APP_BACKGROUND }}>
+            <StatusBar style="dark" />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: APP_BACKGROUND },
+                animation: 'default',
+              }}
+            >
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="venues" />
+            </Stack>
+          </View>
+        </QueryProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

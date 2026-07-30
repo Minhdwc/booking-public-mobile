@@ -1,37 +1,56 @@
 import { Image } from 'expo-image';
 import * as SplashScreen from 'expo-splash-screen';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import Animated, { Easing, Keyframe } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
 const INITIAL_SCALE_FACTOR = Dimensions.get('screen').height / 90;
 const DURATION = 600;
+const SPLASH_FALLBACK_MS = 2500;
 
-export function AnimatedSplashOverlay() {
+const splashKeyframe = new Keyframe({
+  0: {
+    transform: [{ scale: 1 }],
+    opacity: 1,
+  },
+  20: {
+    opacity: 1,
+  },
+  70: {
+    opacity: 0,
+    easing: Easing.elastic(0.7),
+  },
+  100: {
+    opacity: 0,
+    transform: [{ scale: 1 }],
+    easing: Easing.elastic(0.7),
+  },
+});
+
+type AnimatedSplashOverlayProps = {
+  onFinish?: () => void;
+};
+
+export function AnimatedSplashOverlay({ onFinish }: AnimatedSplashOverlayProps) {
   const [animate, setAnimate] = useState(false);
   const [visible, setVisible] = useState(true);
 
-  if (!visible) return null;
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setVisible(false);
+    }, SPLASH_FALLBACK_MS);
 
-  const splashKeyframe = new Keyframe({
-    0: {
-      transform: [{ scale: 1 }],
-      opacity: 1,
-    },
-    20: {
-      opacity: 1,
-    },
-    70: {
-      opacity: 0,
-      easing: Easing.elastic(0.7),
-    },
-    100: {
-      opacity: 0,
-      transform: [{ scale: 1 }],
-      easing: Easing.elastic(0.7),
-    },
-  });
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!visible) {
+      onFinish?.();
+    }
+  }, [visible, onFinish]);
+
+  if (!visible) return null;
 
   const image = <Image style={styles.image} source={require('@assets/images/expo-logo.png')} />;
 
@@ -44,6 +63,7 @@ export function AnimatedSplashOverlay() {
         }
       })}
       style={styles.splashOverlay}
+      pointerEvents="none"
     >
       {image}
     </Animated.View>

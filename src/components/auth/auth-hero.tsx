@@ -21,17 +21,17 @@ export function AuthHero({ eyebrow, title, subtitle, showBack }: AuthHeroProps) 
             <Pressable
               onPress={() => router.back()}
               hitSlop={12}
-              className="border-paper/15 active:bg-paper/10 mb-8 h-9 w-9 items-center justify-center rounded-full border"
+              className="mb-8 h-9 w-9 items-center justify-center rounded-full border border-paper/15 active:bg-paper/10"
             >
-              <Text className="text-paper text-base">←</Text>
+              <Text className="text-base text-paper">←</Text>
             </Pressable>
           ) : (
             <View className="mb-8 h-9" />
           )}
 
-          <Text className="text-line text-xs font-bold uppercase tracking-widest">{eyebrow}</Text>
-          <Text className="text-paper mt-3 text-4xl font-extrabold">{title}</Text>
-          <Text className="text-mist mt-2 max-w-[85%] text-base leading-6">{subtitle}</Text>
+          <Text className="text-xs font-bold uppercase tracking-widest text-line">{eyebrow}</Text>
+          <Text className="mt-3 text-4xl font-extrabold text-paper">{title}</Text>
+          <Text className="mt-2 max-w-[85%] text-base leading-6 text-mist">{subtitle}</Text>
         </View>
       </SafeAreaView>
     </View>

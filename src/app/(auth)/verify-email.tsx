@@ -56,7 +56,8 @@ export default function VerifyEmailScreen() {
       <SafeAreaView style={styles.safe}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={styles.form}>
+          style={styles.form}
+        >
           <ThemedText type="title" style={styles.title}>
             Xác minh email
           </ThemedText>
@@ -80,7 +81,8 @@ export default function VerifyEmailScreen() {
           <Pressable
             style={[styles.button, { backgroundColor: theme.text }]}
             onPress={() => handleVerify()}
-            disabled={isSubmitting}>
+            disabled={isSubmitting}
+          >
             {isSubmitting ? (
               <ActivityIndicator color={theme.background} />
             ) : (
@@ -93,7 +95,8 @@ export default function VerifyEmailScreen() {
           {message ? (
             <Pressable
               style={[styles.button, { backgroundColor: theme.backgroundElement }]}
-              onPress={() => router.replace(isLoggedIn ? '/' : '/login')}>
+              onPress={() => router.replace(isLoggedIn ? '/' : '/login')}
+            >
               <ThemedText style={styles.buttonText}>Tiếp tục</ThemedText>
             </Pressable>
           ) : null}

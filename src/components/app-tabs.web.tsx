@@ -32,9 +32,7 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
   return (
     <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
       <View
-        className={`rounded-2xl px-4 py-2 ${
-          isFocused ? 'bg-line' : 'bg-paper dark:bg-court-deep'
-        }`}
+        className={`rounded-2xl px-4 py-2 ${isFocused ? 'bg-line' : 'bg-paper dark:bg-court-deep'}`}
       >
         <Text className={`text-sm font-bold ${isFocused ? 'text-ink' : 'text-mist'}`}>
           {children}
@@ -47,8 +45,8 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
 export function CustomTabList(props: TabListProps) {
   return (
     <View {...props} style={styles.tabListContainer}>
-      <View className="bg-court border-line/20 mx-4 flex-row items-center gap-2 rounded-full border px-3 py-2">
-        <Text className="text-line mr-auto text-xs font-extrabold uppercase tracking-widest">
+      <View className="mx-4 flex-row items-center gap-2 rounded-full border border-line/20 bg-court px-3 py-2">
+        <Text className="mr-auto text-xs font-extrabold uppercase tracking-widest text-line">
           Book Sân
         </Text>
         {props.children}

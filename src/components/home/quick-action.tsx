@@ -12,11 +12,11 @@ export function QuickAction({ emoji, label, hint, onPress }: QuickActionProps) {
   return (
     <Pressable
       onPress={onPress}
-      className="bg-paper dark:bg-court-deep border-ink/10 dark:border-paper/10 active:bg-line/10 flex-1 rounded-2xl border p-4"
+      className="flex-1 rounded-2xl border border-ink/10 bg-paper p-4 active:bg-line/10 dark:border-paper/10 dark:bg-court-deep"
     >
       <Text className="text-2xl">{emoji}</Text>
-      <Text className="text-ink dark:text-paper mt-3 text-sm font-extrabold">{label}</Text>
-      <Text className="text-mist mt-1 text-xs leading-4">{hint}</Text>
+      <Text className="mt-3 text-sm font-extrabold text-ink dark:text-paper">{label}</Text>
+      <Text className="mt-1 text-xs leading-4 text-mist">{hint}</Text>
     </Pressable>
   );
 }
