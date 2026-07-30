@@ -32,8 +32,8 @@ export const queryKeys = {
     delete: (id: string) => ['booking', 'delete', id],
   },
   venue: {
-    list: () => ['venues', 'list'],
-    detail: (id: string) => ['venues', 'detail', id],
+    list: (params?: any) => ['venues', 'list', params ?? {}] as const,
+    detail: (id: string) => ['venues', 'detail', id] as const,
     create: () => ['venues', 'create'],
     edit: (id: string) => ['venues', 'edit', id],
     delete: (id: string) => ['venues', 'delete', id],

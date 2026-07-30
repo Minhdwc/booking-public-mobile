@@ -1,11 +1,6 @@
 import axios, { type AxiosRequestConfig } from 'axios';
 
-import {
-  clearApiTokens,
-  getAccessToken,
-  getRefreshToken,
-  notifyTokensRefreshed,
-} from './token';
+import { clearApiTokens, getAccessToken, getRefreshToken, notifyTokensRefreshed } from './token';
 
 import { ApiError, getErrorMessage } from './errors';
 import type { ApiErrorBody, ApiResponse, RefreshResponse } from './response';
@@ -82,10 +77,9 @@ axiosClient.interceptors.response.use(
           throw new Error('No refresh token');
         }
 
-        const res = await axios.post<ApiResponse<RefreshResponse>>(
-          `${API_URL}/auth/refresh`,
-          { refreshToken },
-        );
+        const res = await axios.post<ApiResponse<RefreshResponse>>(`${API_URL}/auth/refresh`, {
+          refreshToken,
+        });
 
         const tokens = res.data.data;
         await notifyTokensRefreshed(tokens.accessToken, tokens.refreshToken);

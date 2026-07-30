@@ -99,30 +99,36 @@ export const useAuthStore = create<{
   },
 
   init: async () => {
-    setUnauthorizedHandler(() => {
-      void get().logout();
-    });
-
-    registerSaveTokens((accessToken, refreshToken) =>
-      get().updateTokens(accessToken, refreshToken),
-    );
-
-    const accessToken = await authStorage.getAccessToken();
-    const refreshToken = await authStorage.getRefreshToken();
-
-    if (!accessToken || !refreshToken) {
-      set({ isLoading: false, isLoggedIn: false });
-      return;
-    }
-
-    setApiTokens(accessToken, refreshToken);
-    set({ accessToken, refreshToken, isLoggedIn: true });
-
     try {
-      const user = await authApi.getMe();
-      set({ user: user as IUser, isLoading: false });
-    } catch {
-      await get().logout();
+      setUnauthorizedHandler(() => {
+        void get().logout();
+      });
+
+      registerSaveTokens((accessToken, refreshToken) =>
+        get().updateTokens(accessToken, refreshToken),
+      );
+
+      const accessToken = await authStorage.getAccessToken();
+      const refreshToken = await authStorage.getRefreshToken();
+
+      if (!accessToken || !refreshToken) {
+        set({ isLoading: false, isLoggedIn: false });
+        return;
+      }
+
+      setApiTokens(accessToken, refreshToken);
+      set({ accessToken, refreshToken, isLoggedIn: true });
+
+      try {
+        const user = await authApi.getMe();
+        set({ user: user as IUser, isLoading: false });
+      } catch {
+        await get().logout();
+      }
+    } finally {
+      if (get().isLoading) {
+        set({ isLoading: false });
+      }
     }
   },
 }));

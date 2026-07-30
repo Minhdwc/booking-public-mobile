@@ -10,10 +10,10 @@ export function SectionHeader({ eyebrow, title, subtitle }: SectionHeaderProps) 
   return (
     <View className="gap-1">
       {eyebrow ? (
-        <Text className="text-mist text-xs font-bold uppercase tracking-widest">{eyebrow}</Text>
+        <Text className="text-xs font-bold uppercase tracking-widest text-mist">{eyebrow}</Text>
       ) : null}
-      <Text className="text-ink dark:text-paper text-xl font-extrabold">{title}</Text>
-      {subtitle ? <Text className="text-mist text-sm leading-5">{subtitle}</Text> : null}
+      <Text className="text-xl font-extrabold text-ink dark:text-paper">{title}</Text>
+      {subtitle ? <Text className="text-sm leading-5 text-mist">{subtitle}</Text> : null}
     </View>
   );
 }

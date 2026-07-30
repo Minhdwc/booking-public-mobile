@@ -34,7 +34,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <View className="bg-paper dark:bg-ink flex-1">
+    <View className="flex-1 bg-paper dark:bg-ink">
       <Stack.Screen options={{ headerShown: false }} />
 
       <AuthHero
@@ -70,15 +70,15 @@ export default function LoginScreen() {
                 onChangeText={setPassword}
               />
 
-              {error ? <Text className="text-clay text-sm">{error}</Text> : null}
+              {error ? <Text className="text-sm text-clay">{error}</Text> : null}
 
               <AuthButton label="Đăng nhập" loading={isSubmitting} onPress={handleLogin} />
             </View>
 
             <View className="mt-8 flex-row justify-center">
-              <Text className="text-mist text-sm">Chưa có tài khoản? </Text>
+              <Text className="text-sm text-mist">Chưa có tài khoản? </Text>
               <Link href="/register">
-                <Text className="text-ink dark:text-paper text-sm font-extrabold">Đăng ký</Text>
+                <Text className="text-sm font-extrabold text-ink dark:text-paper">Đăng ký</Text>
               </Link>
             </View>
           </ScrollView>

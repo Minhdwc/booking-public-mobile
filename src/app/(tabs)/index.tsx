@@ -6,22 +6,23 @@ import { AuthButton } from '@/components/auth/auth-button';
 import { AuthHero } from '@/components/auth/auth-hero';
 import { QuickAction, QuickActionRow } from '@/components/home/quick-action';
 import { SectionHeader } from '@/components/home/section-header';
+import { VenueCard, VenueCardSkeleton } from '@/components/home/venue-card';
+import { VenueListEmpty, VenueListError } from '@/components/home/venue-list-states';
 import { BottomTabInset } from '@/constants/theme';
 import { useAuth } from '@/features/auth/use-auth';
+import { useVenues } from '@/features/venues';
 
 export default function HomeScreen() {
-  const { user, isLoggedIn, isLoading, signOut, isSubmitting } = useAuth();
-
-  if (isLoading) {
-    return (
-      <View className="bg-paper dark:bg-ink flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#16342B" />
-      </View>
-    );
-  }
+  const { user, isLoggedIn, signOut, isSubmitting } = useAuth();
+  const {
+    data: featuredVenues,
+    isLoading: isVenuesLoading,
+    isError: isVenuesError,
+    refetch: refetchVenues,
+  } = useVenues({ page: 1, limit: 3 });
 
   return (
-    <View className="bg-paper dark:bg-ink flex-1">
+    <View style={{ flex: 1, backgroundColor: '#F7F5EF' }} className="flex-1 bg-paper">
       <AuthHero
         eyebrow={isLoggedIn ? 'Xin chào' : 'Book sân trong tầm tay'}
         title={isLoggedIn && user ? user.name : 'Đặt sân nhanh'}
@@ -39,13 +40,15 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View className="gap-4">
-            <SectionHeader
-              eyebrow="Hành động nhanh"
-              title="Bạn muốn làm gì?"
-            />
+            <SectionHeader eyebrow="Hành động nhanh" title="Bạn muốn làm gì?" />
 
             <QuickActionRow>
-              <QuickAction emoji="🔍" label="Tìm sân" hint="Lọc theo môn & khu vực" />
+              <QuickAction
+                emoji="🔍"
+                label="Tìm sân"
+                hint="Lọc theo môn & khu vực"
+                onPress={() => router.push('/explore')}
+              />
               <QuickAction emoji="📅" label="Lịch đặt" hint="Xem booking sắp tới" />
             </QuickActionRow>
 
@@ -55,8 +58,43 @@ export default function HomeScreen() {
             </QuickActionRow>
           </View>
 
+          <View className="gap-4">
+            <SectionHeader
+              eyebrow="Gợi ý"
+              title="Sân gần bạn"
+              subtitle="Dữ liệu từ API · chỉ hiện sân active"
+            />
+
+            {isVenuesLoading ? (
+              <View className="gap-3">
+                <VenueCardSkeleton compact />
+                <VenueCardSkeleton compact />
+              </View>
+            ) : isVenuesError ? (
+              <VenueListError onRetry={() => void refetchVenues()} />
+            ) : (featuredVenues?.data.length ?? 0) > 0 ? (
+              <View className="gap-3">
+                {featuredVenues?.data.map((venue) => (
+                  <VenueCard
+                    key={venue.id}
+                    venue={venue}
+                    compact
+                    onPress={() => router.push({ pathname: '/venues/[id]', params: { id: venue.id } })}
+                  />
+                ))}
+                <Pressable onPress={() => router.push('/explore')} className="self-center py-2">
+                  <Text className="text-sm font-extrabold text-ink dark:text-paper">
+                    Xem tất cả →
+                  </Text>
+                </Pressable>
+              </View>
+            ) : (
+              <VenueListEmpty onRetry={() => void refetchVenues()} />
+            )}
+          </View>
+
           {isLoggedIn && user ? (
-            <View className="border-ink/10 dark:border-paper/10 gap-4 rounded-3xl border p-5">
+            <View className="gap-4 rounded-3xl border border-ink/10 p-5 dark:border-paper/10">
               <SectionHeader
                 eyebrow="Tài khoản"
                 title={user.email}
@@ -64,21 +102,23 @@ export default function HomeScreen() {
               />
 
               {!user.emailVerified ? (
-                <View className="bg-clay/10 rounded-2xl px-4 py-3">
-                  <Text className="text-clay text-sm font-bold">Email chưa xác minh</Text>
-                  <Text className="text-mist mt-1 text-sm">
+                <View className="rounded-2xl bg-clay/10 px-4 py-3">
+                  <Text className="text-sm font-bold text-clay">Email chưa xác minh</Text>
+                  <Text className="mt-1 text-sm text-mist">
                     Xác minh để nhận thông báo booking và ưu đãi.
                   </Text>
                   <Link href="/verify-email" className="mt-3">
-                    <Text className="text-ink dark:text-paper text-sm font-extrabold">
+                    <Text className="text-sm font-extrabold text-ink dark:text-paper">
                       Xác minh ngay →
                     </Text>
                   </Link>
                 </View>
               ) : (
-                <View className="bg-line/20 rounded-2xl px-4 py-3">
-                  <Text className="text-ink text-sm font-extrabold">Email đã xác minh ✓</Text>
-                  <Text className="text-mist mt-1 text-sm">Bạn có thể đặt sân và nhận thông báo.</Text>
+                <View className="rounded-2xl bg-line/20 px-4 py-3">
+                  <Text className="text-sm font-extrabold text-ink">Email đã xác minh ✓</Text>
+                  <Text className="mt-1 text-sm text-mist">
+                    Bạn có thể đặt sân và nhận thông báo.
+                  </Text>
                 </View>
               )}
 
@@ -88,12 +128,14 @@ export default function HomeScreen() {
                   router.replace('/login');
                 }}
                 disabled={isSubmitting}
-                className="border-ink/15 dark:border-paper/20 mt-2 items-center rounded-full border py-4 active:opacity-80 disabled:opacity-50"
+                className="mt-2 items-center rounded-full border border-ink/15 py-4 active:opacity-80 disabled:opacity-50 dark:border-paper/20"
               >
                 {isSubmitting ? (
                   <ActivityIndicator color="#10201A" />
                 ) : (
-                  <Text className="text-ink dark:text-paper text-base font-extrabold">Đăng xuất</Text>
+                  <Text className="text-base font-extrabold text-ink dark:text-paper">
+                    Đăng xuất
+                  </Text>
                 )}
               </Pressable>
             </View>
@@ -109,18 +151,18 @@ export default function HomeScreen() {
 
               <AuthButton
                 label="Tạo tài khoản"
-                className="bg-paper border-ink/15 dark:bg-court-deep border"
+                className="border border-ink/15 bg-paper dark:bg-court-deep"
                 onPress={() => router.push('/register')}
               />
             </View>
           )}
 
-          <View className="bg-court gap-2 rounded-3xl p-5">
-            <Text className="text-line text-xs font-bold uppercase tracking-widest">Mẹo nhỏ</Text>
-            <Text className="text-paper text-base font-extrabold">
+          <View className="gap-2 rounded-3xl bg-court p-5">
+            <Text className="text-xs font-bold uppercase tracking-widest text-line">Mẹo nhỏ</Text>
+            <Text className="text-base font-extrabold text-paper">
               Đặt sớm 2–3 ngày để có khung giờ đẹp
             </Text>
-            <Text className="text-mist text-sm leading-5">
+            <Text className="text-sm leading-5 text-mist">
               Giờ cao điểm 17:00–20:00 thường kín nhanh. Thử khung sáng hoặc trưa để giá tốt hơn.
             </Text>
           </View>
