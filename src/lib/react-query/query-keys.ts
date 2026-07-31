@@ -14,7 +14,7 @@ export const queryKeys = {
     create: () => ['reviews', 'create'],
     edit: (id: string) => ['reviews', 'edit', id],
     delete: (id: string) => ['reviews', 'delete', id],
-    list: () => ['reviews', 'list'],
+    list: (params?: any) => ['reviews', 'list', params ?? {}] as const,
     detail: (id: string) => ['reviews', 'detail', id],
   },
   'payment-method': {
@@ -54,13 +54,17 @@ export const queryKeys = {
     popular: (limit?: number) => ['search', 'popular', limit ?? 8] as const,
     recentlyViewed: () => ['search', 'recently-viewed'] as const,
   },
+  location: {
+    current: () => ['location', 'current'] as const,
+  },
   notification: {
     list: () => ['notifications', 'list'],
     detail: (id: string) => ['notifications', 'detail', id],
     edit: (id: string) => ['notifications', 'edit', id],
   },
   amenity: {
-    list: () => ['amenities', 'list'],
-    detail: (id: string) => ['amenities', 'detail', id],
+    list: () => ['amenities', 'list'] as const,
+    detail: (id: string) => ['amenities', 'detail', id] as const,
+    byVenue: (venueId: string) => ['amenities', 'venue', venueId] as const,
   },
 };

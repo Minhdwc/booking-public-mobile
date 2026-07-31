@@ -1,5 +1,6 @@
 import { Link, router } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { useMemo } from 'react';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthButton } from '@/components/auth/auth-button';
@@ -11,8 +12,9 @@ import { VenueListEmpty, VenueListError } from '@/components/home/venue-list-sta
 import { PopularSearchSection } from '@/components/search/popular-search-chips';
 import { BottomTabInset } from '@/constants/theme';
 import { useAuth } from '@/features/auth/use-auth';
+import { useUserLocation, isLocationAvailable } from '@/features/location';
 import { usePopularSearches, useRecentlyViewed } from '@/features/search';
-import { useVenues } from '@/features/venues';
+import { attachDistanceToVenues, useVenues, type VenueListItem } from '@/features/venues';
 
 export default function HomeScreen() {
   const { user, isLoggedIn, signOut, isSubmitting } = useAuth();
@@ -29,6 +31,42 @@ export default function HomeScreen() {
     isLoading: isRecentlyViewedLoading,
     isError: isRecentlyViewedError,
   } = useRecentlyViewed(isLoggedIn);
+
+  const {
+    data: userLocation,
+    isLoading: isLocationLoading,
+    isError: isLocationError,
+    refetch: refetchLocation,
+  } = useUserLocation({ auto: false });
+
+  const canUseLocation = isLocationAvailable();
+
+  const nearbyVenues = useMemo(
+    () => attachDistanceToVenues(featuredVenues?.data ?? [], userLocation),
+    [featuredVenues?.data, userLocation],
+  );
+
+  const nearbySubtitle = userLocation
+    ? 'Đã sắp xếp theo khoảng cách từ vị trí của bạn'
+    : isLocationLoading
+      ? 'Đang xác định vị trí…'
+      : !canUseLocation
+        ? 'GPS cần Expo Go SDK 57 hoặc npm run android:build'
+        : isLocationError
+          ? 'Không lấy được vị trí · thử lại'
+          : 'Bấm 📍 để xem sân gần nhất';
+
+  const handleNearbyPress = () => {
+    if (!canUseLocation) {
+      Alert.alert(
+        'GPS chưa khả dụng',
+        'Expo Go hiện tại chưa có module vị trí.\n\n• Cập nhật Expo Go lên SDK 57\n• Hoặc chạy: npm run android:build',
+      );
+      return;
+    }
+
+    void refetchLocation();
+  };
 
   const handlePopularSearchSelect = (query: string) => {
     router.push({ pathname: '/explore', params: { q: query } });
@@ -101,7 +139,7 @@ export default function HomeScreen() {
                 <Text className="text-sm text-mist">Không tải được lịch sử xem gần đây.</Text>
               ) : recentlyViewed.length > 0 ? (
                 <View className="gap-3">
-                  {recentlyViewed.slice(0, 3).map((venue) => (
+                  {recentlyViewed.slice(0, 3).map((venue: VenueListItem) => (
                     <VenueCard
                       key={venue.id}
                       venue={venue}
@@ -121,11 +159,34 @@ export default function HomeScreen() {
           ) : null}
 
           <View className="gap-4">
-            <SectionHeader
-              eyebrow="Gợi ý"
-              title="Sân gần bạn"
-              subtitle="Dữ liệu từ API · chỉ hiện sân active"
-            />
+            <View className="flex-row items-end justify-between gap-3">
+              <View className="flex-1">
+                <SectionHeader
+                  eyebrow="Gợi ý"
+                  title="Sân gần bạn"
+                  subtitle={nearbySubtitle}
+                />
+              </View>
+              <Pressable
+                onPress={handleNearbyPress}
+                disabled={isLocationLoading}
+                className={`rounded-full border px-3 py-2 active:opacity-80 disabled:opacity-60 ${
+                  canUseLocation
+                    ? 'border-line/40 bg-line/25'
+                    : 'border-mist/30 bg-mist/10'
+                }`}
+              >
+                {isLocationLoading ? (
+                  <ActivityIndicator size="small" color="#16342B" />
+                ) : (
+                  <Text
+                    className={`text-xs font-extrabold ${canUseLocation ? 'text-ink' : 'text-mist'}`}
+                  >
+                    📍 Gần tôi
+                  </Text>
+                )}
+              </Pressable>
+            </View>
 
             {isVenuesLoading ? (
               <View className="gap-3">
@@ -134,9 +195,9 @@ export default function HomeScreen() {
               </View>
             ) : isVenuesError ? (
               <VenueListError onRetry={() => void refetchVenues()} />
-            ) : (featuredVenues?.data.length ?? 0) > 0 ? (
+            ) : nearbyVenues.length > 0 ? (
               <View className="gap-3">
-                {featuredVenues?.data.map((venue) => (
+                {nearbyVenues.map((venue) => (
                   <VenueCard
                     key={venue.id}
                     venue={venue}

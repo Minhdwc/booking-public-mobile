@@ -1,18 +1,16 @@
-import 'react-native-gesture-handler';
+import * as GestureHandler from 'react-native-gesture-handler';
 import '@/global.css';
+import '@/lib/nativewind-interop';
 
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 
 import { QueryProvider } from '@/providers/query-provider';
 import { useAuthStore } from '@/features/auth';
-
-const APP_BACKGROUND = '#F7F5EF';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -25,25 +23,26 @@ export default function RootLayout() {
   }, [init]);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: APP_BACKGROUND }}>
+    <GestureHandler.GestureHandlerRootView style={{ flex: 1, backgroundColor: '#F7F5EF' }}>
       <SafeAreaProvider>
         <QueryProvider>
-          <View style={{ flex: 1, backgroundColor: APP_BACKGROUND }}>
+          <View style={{ flex: 1, backgroundColor: '#F7F5EF' }}>
             <StatusBar style="dark" />
             <Stack
               screenOptions={{
                 headerShown: false,
-                contentStyle: { backgroundColor: APP_BACKGROUND },
+                contentStyle: { backgroundColor: '#F7F5EF' },
                 animation: 'default',
               }}
             >
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="venues" />
+              <Stack.Screen name="courts" />
             </Stack>
           </View>
         </QueryProvider>
       </SafeAreaProvider>
-    </GestureHandlerRootView>
+    </GestureHandler.GestureHandlerRootView>
   );
 }

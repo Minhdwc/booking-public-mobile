@@ -18,13 +18,22 @@ export function VenueCard({ venue, compact, onPress }: VenueCardProps) {
     >
       <View className={`relative overflow-hidden bg-court ${compact ? 'h-32' : 'h-40'}`}>
         {venue.coverImageUrl ? (
-          <Image source={{ uri: venue.coverImageUrl }} className="h-full w-full" contentFit="cover" />
+          <Image
+            source={{ uri: venue.coverImageUrl }}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
+          />
         ) : (
           <View className="h-full w-full items-center justify-center">
             <CourtMotif className="-right-8 -top-4 opacity-60" />
             <Text className="text-4xl">🏟️</Text>
           </View>
         )}
+        {venue.distanceLabel ? (
+          <View className="absolute left-3 top-3 rounded-full bg-line px-2.5 py-1">
+            <Text className="text-xs font-extrabold text-ink">📍 {venue.distanceLabel}</Text>
+          </View>
+        ) : null}
         <View className="absolute right-3 top-3 rounded-full bg-ink/80 px-2.5 py-1">
           <Text className="text-xs font-bold text-paper">
             {venue.ratingLabel === 'Mới' ? venue.ratingLabel : `★ ${venue.ratingLabel}`}

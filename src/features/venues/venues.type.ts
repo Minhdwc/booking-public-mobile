@@ -7,6 +7,14 @@ export type VenueSport = {
   status: string;
 };
 
+export type VenueCourtImage = {
+  id: string;
+  url: string;
+  courtId: string;
+  isThumbnail: boolean;
+  position: number;
+};
+
 export type VenueCourt = {
   id: string;
   venueId: string;
@@ -18,6 +26,7 @@ export type VenueCourt = {
   durationStepMinutes: number;
   status: string;
   sport?: VenueSport;
+  courtImages?: VenueCourtImage[];
 };
 
 export type VenueImage = {
@@ -72,9 +81,61 @@ export type VenueListItem = {
   sportLabel: string;
   sportNames: string[];
   addressShort: string;
+  latitude: number;
+  longitude: number;
   coverImageUrl: string | null;
   priceLabel: string | null;
   ratingLabel: string;
   courtCountLabel: string;
   hoursLabel: string | null;
+  distanceLabel?: string | null;
+  distanceKm?: number | null;
+};
+
+export type Amenity = {
+  id: string;
+  name: string;
+  description?: string | null;
+};
+
+export type VenueAmenityLink = {
+  id: string;
+  venueId: string;
+  amenityId: string;
+  amenity: Amenity;
+};
+
+export type VenueCourtListItem = {
+  id: string;
+  name: string;
+  sportName: string;
+  priceLabel: string;
+  durationLabel: string;
+  status: string;
+  statusLabel: string;
+  isBookable: boolean;
+};
+
+export type VenueDetail = {
+  id: string;
+  name: string;
+  description: string;
+  address: string;
+  addressShort: string;
+  district: string | null;
+  city: string | null;
+  phone: string | null;
+  latitude: number;
+  longitude: number;
+  status: VenueStatus;
+  ratingAverage: number;
+  ratingCount: number;
+  ratingLabel: string;
+  imageUrls: string[];
+  todayHoursLabel: string | null;
+  operatingHoursSummary: string | null;
+  courts: VenueCourtListItem[];
+  amenities: Amenity[];
+  courtCountLabel: string;
+  priceLabel: string | null;
 };

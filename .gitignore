@@ -46,3 +46,4 @@ example
 .claude/
 .agents/
 skills-lock.json
+/docs/
