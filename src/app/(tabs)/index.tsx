@@ -112,7 +112,9 @@ export default function HomeScreen() {
                 emoji="⭐"
                 label="Yêu thích"
                 hint="Sân bạn hay đặt"
-                onPress={() => router.push('/account')}
+                onPress={() =>
+                  isLoggedIn ? router.push('/account/favorites') : router.push('/login')
+                }
               />
               <QuickAction emoji="🎁" label="Ưu đãi" hint="Khuyến mãi tuần này" />
             </QuickActionRow>

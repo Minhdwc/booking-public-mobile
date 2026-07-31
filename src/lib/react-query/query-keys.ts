@@ -16,6 +16,7 @@ export const queryKeys = {
     delete: (id: string) => ['reviews', 'delete', id],
     list: (params?: any) => ['reviews', 'list', params ?? {}] as const,
     detail: (id: string) => ['reviews', 'detail', id],
+    eligibility: (venueId: string) => ['reviews', 'eligibility', venueId] as const,
   },
   'payment-method': {
     list: () => ['payment-methods', 'list'],
@@ -70,5 +71,11 @@ export const queryKeys = {
     list: () => ['amenities', 'list'] as const,
     detail: (id: string) => ['amenities', 'detail', id] as const,
     byVenue: (venueId: string) => ['amenities', 'venue', venueId] as const,
+  },
+  account: {
+    me: () => ['account', 'me'] as const,
+  },
+  favorites: {
+    summary: () => ['favorites', 'summary'] as const,
   },
 };

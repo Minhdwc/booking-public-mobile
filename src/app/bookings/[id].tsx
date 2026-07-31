@@ -203,6 +203,18 @@ export default function BookingDetailScreen() {
           />
         ) : null}
 
+        {booking.status === 'completed' && primaryItem?.venueId ? (
+          <PrimaryButton
+            label="Viết đánh giá"
+            onPress={() =>
+              router.push({
+                pathname: '/reviews/write',
+                params: { venueId: primaryItem.venueId },
+              })
+            }
+          />
+        ) : null}
+
         <View className="gap-3 rounded-3xl border border-ink/10 p-4 dark:border-paper/10">
           <Text className="text-base font-extrabold text-ink dark:text-paper">Lịch sử</Text>
 

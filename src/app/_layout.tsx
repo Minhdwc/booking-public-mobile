@@ -44,6 +44,8 @@ export default function RootLayout() {
                 <Stack.Screen name="checkout" />
                 <Stack.Screen name="booking" />
                 <Stack.Screen name="bookings" />
+                <Stack.Screen name="account" />
+                <Stack.Screen name="reviews" />
               </Stack>
             </View>
           </SocketProvider>

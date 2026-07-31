@@ -2,24 +2,27 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
 
-import { AmenityGrid } from '@/components/venue/amenity-grid';
+import { FavoriteToggleButton } from '@/components/venue/favorite-toggle-button';
 import { CourtListItem } from '@/components/venue/court-list-item';
 import { StickyBookingBar } from '@/components/venue/sticky-booking-bar';
 import { VenueGallery } from '@/components/venue/venue-gallery';
 import { VenueInfoSection } from '@/components/venue/venue-info-section';
 import { VenueMapSection } from '@/components/venue/venue-map-section';
 import { VenueReviewList } from '@/components/venue/venue-review-list';
-import { EmptyState, ErrorState, LoadingState, ScreenHeader } from '@/components/ui';
-import { useVenueReviews } from '@/features/reviews';
+import { EmptyState, ErrorState, LoadingState, PrimaryButton, ScreenHeader } from '@/components/ui';
+import { useAuth } from '@/features/auth';
+import { useReviewEligibility, useVenueReviews } from '@/features/reviews';
 import { useVenueDetail } from '@/features/venues';
 
 export default function VenueDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { isLoggedIn } = useAuth();
   const scrollRef = useRef<ScrollView>(null);
   const [courtsSectionY, setCourtsSectionY] = useState(0);
 
   const { data: venue, isLoading, isError, refetch, isRefetching } = useVenueDetail(id);
   const { data: reviews = [], isLoading: isReviewsLoading } = useVenueReviews(id);
+  const { data: reviewEligibility } = useReviewEligibility(id, isLoggedIn);
 
   const firstBookableCourt = venue?.courts.find((court) => court.isBookable);
 
@@ -73,7 +76,11 @@ export default function VenueDetailScreen() {
 
   return (
     <View className="flex-1 bg-paper dark:bg-ink">
-      <ScreenHeader title={venue.name} subtitle={venue.addressShort} />
+      <ScreenHeader
+        title={venue.name}
+        subtitle={venue.addressShort}
+        right={id ? <FavoriteToggleButton venueId={id} /> : undefined}
+      />
 
       <ScrollView
         ref={scrollRef}
@@ -133,6 +140,15 @@ export default function VenueDetailScreen() {
 
         <View className="gap-4">
           <Text className="text-lg font-extrabold text-ink dark:text-paper">Đánh giá</Text>
+          {reviewEligibility?.canReview ? (
+            <PrimaryButton
+              label="Viết đánh giá"
+              variant="secondary"
+              onPress={() =>
+                router.push({ pathname: '/reviews/write', params: { venueId: id! } })
+              }
+            />
+          ) : null}
           <VenueReviewList reviews={reviews} isLoading={isReviewsLoading} />
         </View>
       </ScrollView>

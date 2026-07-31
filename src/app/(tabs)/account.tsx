@@ -1,5 +1,5 @@
 import { Link, router } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthButton } from '@/components/auth/auth-button';
@@ -52,9 +52,34 @@ export default function AccountTabScreen() {
                 </View>
               )}
 
-              <MenuRow label="Lịch đặt của tôi" hint="Xem booking" onPress={() => router.push('/bookings')} />
-              <MenuRow label="Yêu thích" hint="Sắp có" disabled />
-              <MenuRow label="Đổi mật khẩu" hint="Sắp có" disabled />
+              <View className="items-center gap-3 pb-2">
+                {user.avatarUrl ? (
+                  <Image source={{ uri: user.avatarUrl }} className="h-20 w-20 rounded-full bg-ink/5" />
+                ) : (
+                  <View className="h-20 w-20 items-center justify-center rounded-full bg-line/20">
+                    <Text className="text-3xl">👤</Text>
+                  </View>
+                )}
+                <Text className="text-xl font-extrabold text-ink dark:text-paper">{user.name}</Text>
+                <Text className="text-sm text-mist">@{user.username}</Text>
+              </View>
+
+              <MenuRow
+                label="Sửa hồ sơ"
+                hint="Tên, username, ảnh đại diện"
+                onPress={() => router.push('/account/edit-profile')}
+              />
+              <MenuRow label="Lịch đặt của tôi" hint="Xem booking" onPress={() => router.push('/(tabs)/bookings')} />
+              <MenuRow
+                label="Yêu thích"
+                hint="Cơ sở đã lưu"
+                onPress={() => router.push('/account/favorites')}
+              />
+              <MenuRow
+                label="Đổi mật khẩu"
+                hint="Bảo mật tài khoản"
+                onPress={() => router.push('/account/change-password')}
+              />
 
               <Pressable
                 onPress={async () => {
