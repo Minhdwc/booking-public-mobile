@@ -13,11 +13,11 @@ import { EmptyState, ErrorState } from '@/components/ui';
 import { BottomTabInset } from '@/constants/theme';
 import {
   filterVenuesBySport,
+  SearchSuggestion,
   useExploreVenues,
   useSearchSuggestions,
-  type SearchSuggestion,
 } from '@/features/search';
-import { useSports, type SportChipItem } from '@/features/sports';
+import { useSports, SportChipItem } from '@/features/sports';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 
 export default function ExploreScreen() {

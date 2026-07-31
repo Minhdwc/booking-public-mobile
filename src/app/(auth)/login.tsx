@@ -6,8 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthButton } from '@/components/auth/auth-button';
 import { AuthHero } from '@/components/auth/auth-hero';
 import { AuthInput } from '@/components/auth/auth-input';
-import { loginSchema } from '@/features/auth/auth.schema';
-import { useAuth } from '@/features/auth/use-auth';
+import { loginSchema, useAuth } from '@/features/auth';
 import { useBookingDraftStore } from '@/features/bookings';
 
 export default function LoginScreen() {

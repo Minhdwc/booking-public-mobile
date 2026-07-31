@@ -1,3 +1,15 @@
-export { authApi } from './auth.api';
-export { useAuthStore } from './auth.store';
+export {
+  authApi,
+  loginSchema,
+  registerSchema,
+  useAuthStore,
+  verifyEmailSchema,
+  AuthSession,
+  AuthUser,
+  LoginForm,
+  LoginFormValues,
+  RegisterForm,
+  RegisterFormValues,
+  VerifyEmailFormValues,
+} from './auth';
 export { useAuth } from './use-auth';

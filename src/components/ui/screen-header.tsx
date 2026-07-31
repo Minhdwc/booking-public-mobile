@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
-import type { ReactNode } from 'react';
-import { Pressable, Text, View, type ViewProps } from 'react-native';
+import { ReactNode } from 'react';
+import { Pressable, Text, View, ViewProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ScreenHeaderProps = ViewProps & {

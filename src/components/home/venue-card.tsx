@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { Pressable, Text, View } from 'react-native';
 
 import { CourtMotif } from '@/components/auth/court-motif';
-import type { VenueListItem } from '@/features/venues';
+import { VenueListItem } from '@/features/venues';
 
 type VenueCardProps = {
   venue: VenueListItem;

@@ -15,12 +15,12 @@ export interface RefreshResponse {
   refreshToken: string;
 }
 
-export type PaginatedResult<T> = {
+export interface PaginatedResult<T> {
   page: number;
   limit: number;
   total: number;
   data: T[];
-};
+}
 
 export function unwrapList<T>(payload: T[] | PaginatedResult<T> | null | undefined): T[] {
   if (!payload) return [];

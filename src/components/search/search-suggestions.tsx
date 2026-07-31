@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 
-import type { SearchSuggestion } from '@/features/search';
+import { SearchSuggestion } from '@/features/search';
 
 type SearchSuggestionsProps = {
   suggestions: SearchSuggestion[];

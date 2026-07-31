@@ -1,9 +1,9 @@
-import axios, { type AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 
 import { clearApiTokens, getAccessToken, getRefreshToken, notifyTokensRefreshed } from './token';
 
 import { ApiError, getErrorMessage } from './errors';
-import type { ApiErrorBody, ApiResponse, RefreshResponse } from './response';
+import { ApiErrorBody, ApiResponse, RefreshResponse } from './response';
 
 export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
 

@@ -1,4 +1,4 @@
-import { Pressable, Text, View, type ViewProps } from 'react-native';
+import { Pressable, Text, View, ViewProps } from 'react-native';
 
 type EmptyStateProps = ViewProps & {
   title: string;

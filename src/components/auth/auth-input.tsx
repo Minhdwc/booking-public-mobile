@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { Text, TextInput, type TextInputProps, View } from 'react-native';
+import { Text, TextInput, TextInputProps, View } from 'react-native';
 
 type AuthInputProps = TextInputProps & {
   label: string;

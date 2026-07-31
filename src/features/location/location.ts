@@ -1,10 +1,13 @@
 import { NativeModules, Platform } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
 
-export type UserCoordinates = {
+import { queryKeys } from '@/lib/react-query/query-keys';
+
+export interface UserCoordinates {
   latitude: number;
   longitude: number;
   accuracy: number;
-};
+}
 
 export class LocationError extends Error {
   constructor(
@@ -25,7 +28,6 @@ export function isLocationAvailable(): boolean {
   if (Platform.OS === 'web') {
     return typeof navigator !== 'undefined' && Boolean(navigator.geolocation);
   }
-
   return Boolean(NativeModules.ExpoLocation);
 }
 
@@ -74,10 +76,7 @@ function getWebPosition(): Promise<UserCoordinates> {
 }
 
 export async function requestLocationPermission(): Promise<boolean> {
-  if (Platform.OS === 'web') {
-    return isLocationAvailable();
-  }
-
+  if (Platform.OS === 'web') return isLocationAvailable();
   if (!isLocationAvailable()) return false;
 
   const Location = loadLocationModule();
@@ -86,9 +85,7 @@ export async function requestLocationPermission(): Promise<boolean> {
 }
 
 export async function getCurrentPosition(): Promise<UserCoordinates> {
-  if (Platform.OS === 'web') {
-    return getWebPosition();
-  }
+  if (Platform.OS === 'web') return getWebPosition();
 
   if (!isLocationAvailable()) {
     throw new LocationError(UNAVAILABLE_MESSAGE, 'UNAVAILABLE');
@@ -119,4 +116,21 @@ export async function getCurrentPosition(): Promise<UserCoordinates> {
   } catch {
     throw new LocationError('Không lấy được vị trí hiện tại.', 'UNKNOWN');
   }
+}
+type UseUserLocationOptions = {
+  auto?: boolean;
+};
+
+export function useUserLocation(options: UseUserLocationOptions = {}) {
+  const { auto = false } = options;
+  const canUseLocation = isLocationAvailable();
+
+  return useQuery<UserCoordinates, Error>({
+    queryKey: queryKeys.location.current(),
+    queryFn: getCurrentPosition,
+    staleTime: 2 * 60_000,
+    gcTime: 10 * 60_000,
+    retry: false,
+    enabled: auto && canUseLocation,
+  });
 }

@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 
 import { Badge } from '@/components/ui';
-import type { VenueCourtListItem } from '@/features/venues';
+import { VenueCourtListItem } from '@/features/venues';
 
 type CourtListItemProps = {
   court: VenueCourtListItem;

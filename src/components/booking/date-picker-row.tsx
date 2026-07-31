@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, Text } from 'react-native';
 
-import type { BookingDayOption } from './booking-utils';
+import { BookingDayOption } from './booking-utils';
 
 type DatePickerRowProps = {
   days: BookingDayOption[];

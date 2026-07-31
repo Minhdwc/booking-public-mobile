@@ -1,19 +1,91 @@
+import { z } from 'zod';
 import { create } from 'zustand';
 
-import type { LoginForm, RegisterForm } from '@/features/auth/auth.type';
-import { authApi } from '@/features/auth/auth.api';
+import { apiClient } from '@/services/http/client';
 import { setUnauthorizedHandler } from '@/services/http';
 import { clearApiTokens, registerSaveTokens, setApiTokens } from '@/services/http/token';
 import { authStorage } from '@/services/storage';
-import type { IUser } from '@/types';
+import { IUser } from '@/types';
 
+export interface AuthUser extends Omit<IUser, 'password' | 'verifyToken'> {}
+
+export interface AuthSession {
+  user: AuthUser;
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface LoginForm {
+  email: string;
+  password: string;
+}
+
+export interface RegisterForm {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  name: string;
+  username: string;
+  phone: string;
+}
+export const loginSchema = z.object({
+  email: z.email('Email không hợp lệ'),
+  password: z.string().min(8, 'Mật khẩu phải có ít nhất 8 ký tự'),
+});
+
+export const registerSchema = z
+  .object({
+    email: z.email('Email không hợp lệ'),
+    password: z.string().min(8, 'Mật khẩu phải có ít nhất 8 ký tự'),
+    confirmPassword: z.string().min(8, 'Mật khẩu phải có ít nhất 8 ký tự'),
+    name: z.string().min(2, 'Tên phải có ít nhất 2 ký tự'),
+    username: z.string().min(3, 'Username phải có ít nhất 3 ký tự'),
+    phone: z.string().regex(/^(\+84|84|0)(3|5|7|8|9)\d{8}$/, 'Số điện thoại Việt Nam không hợp lệ'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Mật khẩu không khớp',
+  });
+
+export const verifyEmailSchema = z.object({
+  token: z.string().min(1, 'Mã xác minh không được để trống'),
+});
+
+export interface LoginFormValues extends z.infer<typeof loginSchema> {}
+export interface RegisterFormValues extends z.infer<typeof registerSchema> {}
+export interface VerifyEmailFormValues extends z.infer<typeof verifyEmailSchema> {}
+export const authApi = {
+  login(data: LoginForm) {
+    return apiClient.post<AuthSession>('/auth/login', data);
+  },
+
+  register(data: RegisterForm) {
+    const { confirmPassword: _, ...body } = data;
+    return apiClient.post<AuthSession>('/auth/register', body);
+  },
+
+  logout() {
+    return apiClient.post<{ success: boolean }>('/auth/logout');
+  },
+
+  verifyEmail(token: string) {
+    return apiClient.post<{ success: boolean; message: string }>('/auth/verify-email', { token });
+  },
+
+  resendVerifyEmail() {
+    return apiClient.post<{ success: boolean; message: string }>('/auth/resend-verify');
+  },
+
+  getMe() {
+    return apiClient.get<AuthUser>('/auth/me');
+  },
+};
 export const useAuthStore = create<{
   user: IUser | null;
   accessToken: string | null;
   refreshToken: string | null;
   isLoggedIn: boolean;
   isLoading: boolean;
-
   login: (user: IUser, accessToken: string, refreshToken: string) => Promise<void>;
   logout: () => Promise<void>;
   updateTokens: (accessToken: string, refreshToken: string) => Promise<void>;
@@ -34,40 +106,23 @@ export const useAuthStore = create<{
     await authStorage.saveAccessToken(accessToken);
     await authStorage.saveRefreshToken(refreshToken);
     setApiTokens(accessToken, refreshToken);
-
-    set({
-      user,
-      accessToken,
-      refreshToken,
-      isLoggedIn: true,
-      isLoading: false,
-    });
+    set({ user, accessToken, refreshToken, isLoggedIn: true, isLoading: false });
   },
 
   logout: async () => {
     await authStorage.clearTokens();
     clearApiTokens();
-
-    set({
-      user: null,
-      accessToken: null,
-      refreshToken: null,
-      isLoggedIn: false,
-      isLoading: false,
-    });
+    set({ user: null, accessToken: null, refreshToken: null, isLoggedIn: false, isLoading: false });
   },
 
   updateTokens: async (accessToken, refreshToken) => {
     await authStorage.saveAccessToken(accessToken);
     await authStorage.saveRefreshToken(refreshToken);
     setApiTokens(accessToken, refreshToken);
-
     set({ accessToken, refreshToken, isLoggedIn: true });
   },
 
-  updateUser: (user) => {
-    set({ user });
-  },
+  updateUser: (user) => set({ user }),
 
   signIn: async (data) => {
     const session = await authApi.login(data);
@@ -89,12 +144,10 @@ export const useAuthStore = create<{
 
   verifyEmailToken: async (token) => {
     const result = await authApi.verifyEmail(token);
-
     if (get().isLoggedIn) {
       const user = await authApi.getMe();
       set({ user: user as IUser });
     }
-
     return result.message;
   },
 

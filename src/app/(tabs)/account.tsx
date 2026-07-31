@@ -6,7 +6,7 @@ import { AuthButton } from '@/components/auth/auth-button';
 import { AuthHero } from '@/components/auth/auth-hero';
 import { SectionHeader } from '@/components/home/section-header';
 import { BottomTabInset } from '@/constants/theme';
-import { useAuth } from '@/features/auth/use-auth';
+import { useAuth } from '@/features/auth';
 
 export default function AccountTabScreen() {
   const { user, isLoggedIn, signOut, isSubmitting } = useAuth();
@@ -53,8 +53,8 @@ export default function AccountTabScreen() {
               )}
 
               <MenuRow label="Lịch đặt của tôi" hint="Xem booking" onPress={() => router.push('/bookings')} />
-              <MenuRow label="Yêu thích" hint="Sắp có · Phase 7" disabled />
-              <MenuRow label="Đổi mật khẩu" hint="Sắp có · Phase 7" disabled />
+              <MenuRow label="Yêu thích" hint="Sắp có" disabled />
+              <MenuRow label="Đổi mật khẩu" hint="Sắp có" disabled />
 
               <Pressable
                 onPress={async () => {

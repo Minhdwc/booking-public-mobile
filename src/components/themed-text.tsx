@@ -1,12 +1,12 @@
-import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
+import { Platform, StyleSheet, Text, TextProps } from 'react-native';
 
-import { Fonts, ThemeColor } from '@/constants/theme';
+import { Colors, Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-export type ThemedTextProps = TextProps & {
+export interface ThemedTextProps extends TextProps {
   type?: 'default' | 'title' | 'small' | 'smallBold' | 'subtitle' | 'link' | 'linkPrimary' | 'code';
-  themeColor?: ThemeColor;
-};
+  themeColor?: keyof typeof Colors.light & keyof typeof Colors.dark;
+}
 
 export function ThemedText({ style, type = 'default', themeColor, ...rest }: ThemedTextProps) {
   const theme = useTheme();

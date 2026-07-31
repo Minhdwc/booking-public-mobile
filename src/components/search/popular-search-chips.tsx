@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
-import type { PopularSearchItem } from '@/features/search';
+import { PopularSearchItem } from '@/features/search';
 
 type PopularSearchChipsProps = {
   items: PopularSearchItem[];

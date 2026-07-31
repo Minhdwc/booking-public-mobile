@@ -1,8 +1,4 @@
-export { courtsApi } from './courts.api';
-export { mapCourtDetail } from './courts.mapper';
-export { useCourtAvailability } from './use-court-availability';
-export { useCourtDetail } from './use-court-detail';
-export type {
+export {
   AvailabilitySlot,
   Court,
   CourtAvailability,
@@ -10,4 +6,7 @@ export type {
   CourtImage,
   CourtSport,
   CourtVenue,
-} from './courts.type';
+  courtsApi,
+  mapCourtDetail,
+} from './courts';
+export { useCourtAvailability, useCourtDetail } from './use-courts';

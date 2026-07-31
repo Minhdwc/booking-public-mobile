@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 type QuickActionProps = {

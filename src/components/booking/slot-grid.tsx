@@ -1,11 +1,12 @@
 import { Pressable, Text, View } from 'react-native';
 
-import type { SelectedSlot } from '@/features/bookings';
-import type { AvailabilitySlot } from '@/features/courts';
-import { formatVnd } from '@/features/venues/venues.mapper';
+import { SelectedSlot } from '@/features/bookings';
+import { AvailabilitySlot } from '@/features/courts';
+import { formatVnd } from '@/features/venues';
 
 import {
   formatSlotTime,
+  isSlotSelectable,
   isSlotSelected,
   slotKey,
   toggleSelectedSlot,
@@ -13,6 +14,7 @@ import {
 
 type SlotGridProps = {
   slots: AvailabilitySlot[];
+  selectedDate: string;
   selectedSlots: SelectedSlot[];
   onChange: (slots: SelectedSlot[]) => void;
   isLoading?: boolean;
@@ -22,6 +24,7 @@ type SlotGridProps = {
 
 export function SlotGrid({
   slots,
+  selectedDate,
   selectedSlots,
   onChange,
   isLoading,
@@ -55,16 +58,18 @@ export function SlotGrid({
           subtotal: slot.subtotal,
         };
         const booked = slot.status === 'booked';
+        const past = slot.status === 'past' || !isSlotSelectable(selectedDate, slot);
+        const unavailable = booked || past;
         const selected = isSlotSelected(selectedSlots, normalized);
         const label = `${formatSlotTime(slot.startTime)}–${formatSlotTime(slot.endTime)}`;
 
         return (
           <Pressable
             key={slotKey(normalized)}
-            disabled={booked}
+            disabled={unavailable}
             onPress={() => onChange(toggleSelectedSlot(selectedSlots, normalized))}
             className={`w-[31%] rounded-2xl border px-2 py-3 ${
-              booked
+              unavailable
                 ? 'border-ink/5 bg-ink/5 opacity-50 dark:border-paper/5 dark:bg-paper/5'
                 : selected
                   ? 'border-line bg-line'
@@ -73,13 +78,13 @@ export function SlotGrid({
           >
             <Text
               className={`text-center text-xs font-bold ${
-                booked ? 'text-mist' : selected ? 'text-ink' : 'text-ink dark:text-paper'
+                unavailable ? 'text-mist' : selected ? 'text-ink' : 'text-ink dark:text-paper'
               }`}
               numberOfLines={2}
             >
-              {booked ? `${label}\n(hết)` : label}
+              {booked ? `${label}\n(hết)` : past ? `${label}\n(đã qua)` : label}
             </Text>
-            {!booked ? (
+            {!unavailable ? (
               <Text className="mt-1 text-center text-[10px] font-semibold text-mist">
                 {formatVnd(slot.subtotal)}
               </Text>

@@ -1,11 +1,61 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { mapVenuesToListItems } from '@/features/venues/venues.mapper';
-import { venuesApi } from '@/features/venues/venues.api';
-import type { VenueListItem } from '@/features/venues/venues.type';
+import { mapVenuesToListItems, Venue, VenueListItem, venuesApi } from '@/features/venues';
 import { queryKeys } from '@/lib/react-query/query-keys';
+import { apiClient } from '@/services/http/client';
+import { PaginatedResult, unwrapPage } from '@/services/http/response';
 
-import { searchApi } from './search.api';
+export interface SearchVenuesParams {
+  q: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface PopularSearchItem {
+  query: string;
+  count: number;
+}
+
+export interface SearchSuggestion {
+  type: 'popular' | 'venue';
+  label: string;
+  count?: number;
+  venueId?: string;
+  address?: string;
+}
+
+export interface RecentlyViewedVenue extends Venue {}
+
+export const searchApi = {
+  searchVenues(params: SearchVenuesParams) {
+    return apiClient.get<PaginatedResult<Venue> | Venue[]>('/search/venues', {
+      params: {
+        q: params.q,
+        page: params.page ?? 1,
+        limit: params.limit ?? 20,
+      },
+    });
+  },
+
+  async searchVenuesPage(params: SearchVenuesParams) {
+    const payload = await this.searchVenues(params);
+    return unwrapPage(payload);
+  },
+
+  getPopular(limit = 8) {
+    return apiClient.get<PopularSearchItem[]>('/search/popular', { params: { limit } });
+  },
+
+  getSuggestions(q = '', limit = 8) {
+    return apiClient.get<SearchSuggestion[]>('/search/suggestions', {
+      params: { q, limit },
+    });
+  },
+
+  getRecentlyViewed() {
+    return apiClient.get<Venue[]>('/search/recently-viewed');
+  },
+};
 
 type ExploreVenuesParams = {
   search?: string;
@@ -36,22 +86,12 @@ export function useExploreVenues(params: ExploreVenuesParams = {}) {
           limit: params.limit,
         });
         const items = mapVenuesToListItems(result.data);
-
-        return {
-          ...result,
-          data: items,
-          total: items.length,
-        };
+        return { ...result, data: items, total: items.length };
       }
 
       const result = await venuesApi.getList(params);
       const items = mapVenuesToListItems(result.data);
-
-      return {
-        ...result,
-        data: items,
-        total: items.length,
-      };
+      return { ...result, data: items, total: items.length };
     },
     staleTime: 0,
     refetchOnMount: true,
@@ -92,9 +132,7 @@ export function filterVenuesBySport(
   sportId: string,
   sportName?: string,
 ): VenueListItem[] {
-  if (sportId === 'all' || !sportName) {
-    return venues;
-  }
+  if (sportId === 'all' || !sportName) return venues;
 
   const normalizedSport = sportName.toLowerCase();
 

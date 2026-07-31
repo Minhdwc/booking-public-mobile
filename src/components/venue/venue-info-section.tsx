@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import type { VenueDetail } from '@/features/venues';
+import { VenueDetail } from '@/features/venues';
 
 type VenueInfoSectionProps = {
   venue: VenueDetail;

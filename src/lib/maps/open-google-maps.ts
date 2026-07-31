@@ -1,6 +1,6 @@
 import { Linking, Platform } from 'react-native';
 
-import type { UserCoordinates } from '@/features/location';
+import { UserCoordinates } from '@/features/location';
 
 import { hasValidCoordinates } from './coordinates';
 

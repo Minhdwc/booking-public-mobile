@@ -10,10 +10,10 @@ import { VenueCard, VenueCardSkeleton } from '@/components/home/venue-card';
 import { VenueListEmpty, VenueListError } from '@/components/home/venue-list-states';
 import { PopularSearchSection } from '@/components/search/popular-search-chips';
 import { BottomTabInset } from '@/constants/theme';
-import { useAuth } from '@/features/auth/use-auth';
+import { useAuth } from '@/features/auth';
 import { useUserLocation, isLocationAvailable } from '@/features/location';
 import { usePopularSearches, useRecentlyViewed } from '@/features/search';
-import { attachDistanceToVenues, useVenues, type VenueListItem } from '@/features/venues';
+import { attachDistanceToVenues, useVenues, VenueListItem } from '@/features/venues';
 
 export default function HomeScreen() {
   const { user, isLoggedIn } = useAuth();

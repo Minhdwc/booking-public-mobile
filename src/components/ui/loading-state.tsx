@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { View, type ViewProps } from 'react-native';
+import { ReactNode } from 'react';
+import { View, ViewProps } from 'react-native';
 
 type SkeletonBoxProps = ViewProps & {
   className?: string;

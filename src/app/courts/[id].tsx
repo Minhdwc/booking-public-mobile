@@ -8,12 +8,13 @@ import { SlotGrid } from '@/components/booking/slot-grid';
 import { SlotSummarySheet } from '@/components/booking/slot-summary-sheet';
 import {
   buildCourtReturnPath,
+  filterSelectableSlots,
   next7Days,
   todayLocalIsoDate,
 } from '@/components/booking/booking-utils';
 import { ErrorState, LoadingState, ScreenHeader } from '@/components/ui';
-import { useAuthStore } from '@/features/auth/auth.store';
-import type { SelectedSlot } from '@/features/bookings';
+import { useAuthStore } from '@/features/auth';
+import { SelectedSlot } from '@/features/bookings';
 import { useBookingDraftStore } from '@/features/bookings';
 import { useCourtAvailability, useCourtDetail } from '@/features/courts';
 
@@ -54,13 +55,16 @@ export default function CourtDetailScreen() {
   const handleContinue = () => {
     if (!court || selectedSlots.length === 0) return;
 
+    const validSlots = filterSelectableSlots(selectedDate, selectedSlots);
+    if (validSlots.length === 0) return;
+
     const draft = {
       courtId: court.id,
       courtName: court.name,
       venueId: court.venueId,
       venueName: court.venueName,
       date: selectedDate,
-      selectedSlots,
+      selectedSlots: validSlots,
     };
 
     setDraft(draft);
@@ -168,6 +172,7 @@ export default function CourtDetailScreen() {
           <Text className="text-base font-extrabold text-ink dark:text-paper">Khung giờ</Text>
           <SlotGrid
             slots={availability?.slots ?? []}
+            selectedDate={selectedDate}
             selectedSlots={selectedSlots}
             onChange={setSelectedSlots}
             isLoading={isAvailabilityLoading}

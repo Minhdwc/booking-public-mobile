@@ -1,8 +1,8 @@
 import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import type { SelectedSlot } from '@/features/bookings';
-import { formatVnd } from '@/features/venues/venues.mapper';
+import { SelectedSlot } from '@/features/bookings';
+import { formatVnd } from '@/features/venues';
 import { PrimaryButton } from '@/components/ui';
 
 import { calculateSlotsSubtotal, formatSlotTime } from './booking-utils';

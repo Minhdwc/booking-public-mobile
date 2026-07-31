@@ -2,9 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { queryKeys } from '@/lib/react-query/query-keys';
 
-import { mapCourtDetail } from './courts.mapper';
-import { courtsApi } from './courts.api';
-import type { CourtDetail } from './courts.type';
+import { courtsApi, CourtDetail, mapCourtDetail } from './courts';
 
 export function useCourtDetail(id: string | undefined) {
   return useQuery({
@@ -16,5 +14,14 @@ export function useCourtDetail(id: string | undefined) {
     },
     enabled: Boolean(id),
     staleTime: 60_000,
+  });
+}
+
+export function useCourtAvailability(courtId: string | undefined, date: string) {
+  return useQuery({
+    queryKey: queryKeys.court.availability(courtId ?? '', date),
+    queryFn: () => courtsApi.getAvailability(courtId!, date),
+    enabled: Boolean(courtId && date),
+    staleTime: 30_000,
   });
 }

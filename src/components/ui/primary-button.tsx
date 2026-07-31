@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, Text, type PressableProps } from 'react-native';
+import { ActivityIndicator, Pressable, PressableProps, Text } from 'react-native';
 
 type PrimaryButtonVariant = 'primary' | 'secondary' | 'ghost';
 type PrimaryButtonSize = 'md' | 'lg';

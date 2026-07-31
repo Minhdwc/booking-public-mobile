@@ -1,18 +1,14 @@
-export { venuesApi } from './venues.api';
-export { attachDistanceToVenues } from './sort-by-distance';
 export {
+  attachDistanceToVenues,
   filterActiveVenues,
+  formatVnd,
   mapAmenityLinks,
   mapCourtToListItem,
   mapVenueDetail,
   mapVenueToListItem,
   mapVenuesToListItems,
-  formatVnd,
   toImageUrls,
-} from './venues.mapper';
-export { useVenueDetail } from './use-venue-detail';
-export { useVenues } from './use-venues';
-export type {
+  venuesApi,
   Amenity,
   Venue,
   VenueAmenityLink,
@@ -21,4 +17,5 @@ export type {
   VenueDetail,
   VenueListItem,
   VenuesListParams,
-} from './venues.type';
+} from './venues';
+export { useVenueDetail, useVenues } from './use-venues';

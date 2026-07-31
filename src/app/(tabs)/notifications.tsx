@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthHero } from '@/components/auth/auth-hero';
 import { EmptyState } from '@/components/ui';
 import { BottomTabInset } from '@/constants/theme';
-import { useAuth } from '@/features/auth/use-auth';
+import { useAuth } from '@/features/auth';
 
 export default function NotificationsTabScreen() {
   const { isLoggedIn } = useAuth();
@@ -35,7 +35,7 @@ export default function NotificationsTabScreen() {
           ) : (
             <EmptyState
               title="Chưa có thông báo"
-              message="Thông báo real-time sẽ có ở Phase 6 (Socket.io)."
+              message="Thông báo sẽ hiển thị tại đây khi bạn có booking mới."
               emoji="🔔"
             />
           )}

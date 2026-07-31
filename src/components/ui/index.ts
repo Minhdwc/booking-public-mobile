@@ -1,4 +1,4 @@
-export { Badge, bookingStatusBadge, type BadgeVariant } from './badge';
+export { Badge, bookingStatusBadge } from './badge';
 export { Collapsible } from './collapsible';
 export { EmptyState } from './empty-state';
 export { ErrorState } from './error-state';

@@ -1,14 +1,12 @@
-export { searchApi } from './search.api';
 export {
   filterVenuesBySport,
+  searchApi,
   useExploreVenues,
   usePopularSearches,
   useRecentlyViewed,
   useSearchSuggestions,
-} from './use-search';
-export type {
   PopularSearchItem,
   RecentlyViewedVenue,
   SearchSuggestion,
   SearchVenuesParams,
-} from './search.type';
+} from './search';

@@ -7,9 +7,9 @@ import { AuthHero } from '@/components/auth/auth-hero';
 import { SectionHeader } from '@/components/home/section-header';
 import { EmptyState, PrimaryButton } from '@/components/ui';
 import { BottomTabInset } from '@/constants/theme';
-import { useAuth } from '@/features/auth/use-auth';
+import { useAuth } from '@/features/auth';
 import { useBookingDraftStore } from '@/features/bookings';
-import { formatVnd } from '@/features/venues/venues.mapper';
+import { formatVnd } from '@/features/venues';
 
 export default function BookingsTabScreen() {
   const { isLoggedIn } = useAuth();
@@ -67,7 +67,7 @@ export default function BookingsTabScreen() {
           ) : (
             <EmptyState
               title="Chưa có booking nào"
-              message="Lịch sử đặt sân sẽ hiển thị ở đây sau Phase 5. Hãy đặt sân từ tab Khám phá."
+              message="Chưa có đặt sân nào. Hãy tìm sân từ tab Khám phá."
               emoji="🏟️"
               actionLabel="Tìm sân"
               onAction={() => router.push('/explore')}

@@ -1,9 +1,8 @@
 import { useState } from 'react';
 
 import { ApiError } from '@/services/http';
-import { useAuthStore } from '@/features/auth/auth.store';
-import type { LoginFormValues } from './auth.schema';
-import { loginSchema } from './auth.schema';
+
+import { loginSchema, LoginFormValues, useAuthStore } from './auth';
 
 export function useAuth() {
   const signIn = useAuthStore((s) => s.signIn);

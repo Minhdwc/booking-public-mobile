@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import type { Amenity } from '@/features/venues';
+import { Amenity } from '@/features/venues';
 
 type AmenityGridProps = {
   amenities: Amenity[];

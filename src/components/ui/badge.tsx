@@ -1,6 +1,6 @@
-import { Text, View, type ViewProps } from 'react-native';
+import { Text, View, ViewProps } from 'react-native';
 
-export type BadgeVariant = 'default' | 'accent' | 'success' | 'warning' | 'muted';
+type BadgeVariant = 'default' | 'accent' | 'success' | 'warning' | 'muted';
 
 type BadgeProps = ViewProps & {
   label: string;
@@ -42,7 +42,6 @@ export function Badge({ label, variant = 'default', className = '', ...props }: 
   );
 }
 
-/** Map booking status → badge variant + Vietnamese label */
 export function bookingStatusBadge(status: string): { label: string; variant: BadgeVariant } {
   switch (status) {
     case 'waiting_payment':

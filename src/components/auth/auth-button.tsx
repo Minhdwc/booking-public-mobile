@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, type PressableProps, Text } from 'react-native';
+import { ActivityIndicator, Pressable, PressableProps, Text } from 'react-native';
 
 type AuthButtonProps = PressableProps & {
   label: string;

@@ -1,4 +1,32 @@
-import type { Sport, SportChipItem } from './sports.type';
+import { useQuery } from '@tanstack/react-query';
+
+import { queryKeys } from '@/lib/react-query/query-keys';
+import { apiClient } from '@/services/http/client';
+import { PaginatedResult, unwrapList } from '@/services/http/response';
+
+export interface Sport {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SportChipItem {
+  id: string;
+  label: string;
+  emoji: string;
+}
+
+export const sportsApi = {
+  async getList(limit = 100) {
+    const result = await apiClient.get<PaginatedResult<Sport> | Sport[]>('/sports', {
+      params: { page: 1, limit },
+    });
+    return unwrapList(result);
+  },
+};
 
 const SPORT_EMOJI: Record<string, string> = {
   badminton: '🏸',
@@ -22,9 +50,7 @@ const SPORT_EMOJI: Record<string, string> = {
 
 export function getSportEmoji(slug: string, name?: string): string {
   const normalizedSlug = slug.toLowerCase();
-  if (SPORT_EMOJI[normalizedSlug]) {
-    return SPORT_EMOJI[normalizedSlug];
-  }
+  if (SPORT_EMOJI[normalizedSlug]) return SPORT_EMOJI[normalizedSlug];
 
   const normalizedName = name?.toLowerCase() ?? '';
   for (const [key, emoji] of Object.entries(SPORT_EMOJI)) {
@@ -55,4 +81,21 @@ export function mapSportsToChipItems(sports: Sport[]): SportChipItem[] {
 
 export function buildSportFilterOptions(sports: Sport[]): SportChipItem[] {
   return [{ id: 'all', label: 'Tất cả', emoji: '🏟️' }, ...mapSportsToChipItems(sports)];
+}
+
+type SportsQueryData = {
+  sports: Sport[];
+  chipOptions: SportChipItem[];
+};
+
+export function useSports() {
+  return useQuery<Sport[], Error, SportsQueryData>({
+    queryKey: queryKeys.sport.list(),
+    queryFn: () => sportsApi.getList(),
+    staleTime: 5 * 60_000,
+    select: (sports) => ({
+      sports,
+      chipOptions: buildSportFilterOptions(sports),
+    }),
+  });
 }

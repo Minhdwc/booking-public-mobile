@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 
 import { EmptyState, LoadingState } from '@/components/ui';
-import type { Review } from '@/features/reviews';
+import { Review } from '@/features/reviews';
 
 type VenueReviewListProps = {
   reviews: Review[];
