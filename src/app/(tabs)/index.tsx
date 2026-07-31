@@ -1,9 +1,8 @@
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AuthButton } from '@/components/auth/auth-button';
 import { AuthHero } from '@/components/auth/auth-hero';
 import { QuickAction, QuickActionRow } from '@/components/home/quick-action';
 import { SectionHeader } from '@/components/home/section-header';
@@ -17,7 +16,7 @@ import { usePopularSearches, useRecentlyViewed } from '@/features/search';
 import { attachDistanceToVenues, useVenues, type VenueListItem } from '@/features/venues';
 
 export default function HomeScreen() {
-  const { user, isLoggedIn, signOut, isSubmitting } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   const {
     data: featuredVenues,
     isLoading: isVenuesLoading,
@@ -100,11 +99,21 @@ export default function HomeScreen() {
                 hint="Lọc theo môn & khu vực"
                 onPress={() => router.push('/explore')}
               />
-              <QuickAction emoji="📅" label="Lịch đặt" hint="Xem booking sắp tới" />
+              <QuickAction
+                emoji="📅"
+                label="Lịch đặt"
+                hint="Xem booking sắp tới"
+                onPress={() => router.push('/bookings')}
+              />
             </QuickActionRow>
 
             <QuickActionRow>
-              <QuickAction emoji="⭐" label="Yêu thích" hint="Sân bạn hay đặt" />
+              <QuickAction
+                emoji="⭐"
+                label="Yêu thích"
+                hint="Sân bạn hay đặt"
+                onPress={() => router.push('/account')}
+              />
               <QuickAction emoji="🎁" label="Ưu đãi" hint="Khuyến mãi tuần này" />
             </QuickActionRow>
           </View>
@@ -218,69 +227,21 @@ export default function HomeScreen() {
             )}
           </View>
 
-          {isLoggedIn && user ? (
-            <View className="gap-4 rounded-3xl border border-ink/10 p-5 dark:border-paper/10">
-              <SectionHeader
-                eyebrow="Tài khoản"
-                title={user.email}
-                subtitle={`@${user.username} · ${user.phone}`}
-              />
-
-              {!user.emailVerified ? (
-                <View className="rounded-2xl bg-clay/10 px-4 py-3">
-                  <Text className="text-sm font-bold text-clay">Email chưa xác minh</Text>
-                  <Text className="mt-1 text-sm text-mist">
-                    Xác minh để nhận thông báo booking và ưu đãi.
-                  </Text>
-                  <Link href="/verify-email" className="mt-3">
-                    <Text className="text-sm font-extrabold text-ink dark:text-paper">
-                      Xác minh ngay →
-                    </Text>
-                  </Link>
-                </View>
-              ) : (
-                <View className="rounded-2xl bg-line/20 px-4 py-3">
-                  <Text className="text-sm font-extrabold text-ink">Email đã xác minh ✓</Text>
-                  <Text className="mt-1 text-sm text-mist">
-                    Bạn có thể đặt sân và nhận thông báo.
-                  </Text>
-                </View>
-              )}
-
-              <Pressable
-                onPress={async () => {
-                  await signOut();
-                  router.replace('/login');
-                }}
-                disabled={isSubmitting}
-                className="mt-2 items-center rounded-full border border-ink/15 py-4 active:opacity-80 disabled:opacity-50 dark:border-paper/20"
-              >
-                {isSubmitting ? (
-                  <ActivityIndicator color="#10201A" />
-                ) : (
-                  <Text className="text-base font-extrabold text-ink dark:text-paper">
-                    Đăng xuất
-                  </Text>
-                )}
-              </Pressable>
+          <Pressable
+            onPress={() => router.push('/account')}
+            className="flex-row items-center justify-between rounded-3xl border border-ink/10 bg-paper px-5 py-4 active:opacity-90 dark:border-paper/10 dark:bg-court-deep"
+          >
+            <View className="gap-1">
+              <Text className="text-xs font-bold uppercase tracking-widest text-mist">Tài khoản</Text>
+              <Text className="text-base font-extrabold text-ink dark:text-paper">
+                {isLoggedIn && user ? user.name : 'Đăng nhập / Đăng ký'}
+              </Text>
+              <Text className="text-sm text-mist">
+                {isLoggedIn && user ? user.email : 'Quản lý hồ sơ và lịch đặt'}
+              </Text>
             </View>
-          ) : (
-            <View className="gap-4">
-              <SectionHeader
-                eyebrow="Bắt đầu ngay"
-                title="Đăng nhập để đặt sân"
-                subtitle="Lưu lịch sử, theo dõi booking và nhận ưu đãi riêng."
-              />
-
-              <AuthButton label="Đăng nhập" onPress={() => router.push('/login')} />
-
-              <AuthButton
-                label="Tạo tài khoản"
-                className="border border-ink/15 bg-paper dark:bg-court-deep"
-                onPress={() => router.push('/register')}
-              />
-            </View>
-          )}
+            <Text className="text-lg text-ink dark:text-paper">→</Text>
+          </Pressable>
 
           <View className="gap-2 rounded-3xl bg-court p-5">
             <Text className="text-xs font-bold uppercase tracking-widest text-line">Mẹo nhỏ</Text>

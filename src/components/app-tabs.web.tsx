@@ -6,9 +6,17 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
-import { Pressable, Text, View, StyleSheet } from 'react-native';
+import { Pressable, ScrollView, Text, View, StyleSheet } from 'react-native';
 
 import { Spacing } from '@/constants/theme';
+
+const TAB_ITEMS = [
+  { name: 'home', href: '/', label: '🏠 Trang chủ' },
+  { name: 'explore', href: '/explore', label: '🔍 Khám phá' },
+  { name: 'bookings', href: '/bookings', label: '📅 Đặt sân' },
+  { name: 'notifications', href: '/notifications', label: '🔔 Thông báo' },
+  { name: 'account', href: '/account', label: '👤 Tài khoản' },
+] as const;
 
 export default function AppTabs() {
   return (
@@ -16,12 +24,11 @@ export default function AppTabs() {
       <TabSlot style={{ height: '100%' }} />
       <TabList asChild>
         <CustomTabList>
-          <TabTrigger name="home" href="/" asChild>
-            <TabButton>Trang chủ</TabButton>
-          </TabTrigger>
-          <TabTrigger name="explore" href="/explore" asChild>
-            <TabButton>Khám phá</TabButton>
-          </TabTrigger>
+          {TAB_ITEMS.map((tab) => (
+            <TabTrigger key={tab.name} name={tab.name} href={tab.href} asChild>
+              <TabButton>{tab.label}</TabButton>
+            </TabTrigger>
+          ))}
         </CustomTabList>
       </TabList>
     </Tabs>
@@ -32,9 +39,9 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
   return (
     <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
       <View
-        className={`rounded-2xl px-4 py-2 ${isFocused ? 'bg-line' : 'bg-paper dark:bg-court-deep'}`}
+        className={`rounded-2xl px-3 py-2 ${isFocused ? 'bg-line' : 'bg-paper dark:bg-court-deep'}`}
       >
-        <Text className={`text-sm font-bold ${isFocused ? 'text-ink' : 'text-mist'}`}>
+        <Text className={`text-xs font-bold ${isFocused ? 'text-ink' : 'text-mist'}`}>
           {children}
         </Text>
       </View>
@@ -45,12 +52,15 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
 export function CustomTabList(props: TabListProps) {
   return (
     <View {...props} style={styles.tabListContainer}>
-      <View className="mx-4 flex-row items-center gap-2 rounded-full border border-line/20 bg-court px-3 py-2">
-        <Text className="mr-auto text-xs font-extrabold uppercase tracking-widest text-line">
-          Book Sân
-        </Text>
-        {props.children}
-      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.tabScrollContent}
+      >
+        <View className="flex-row items-center gap-2 rounded-full border border-line/20 bg-court px-3 py-2">
+          {props.children}
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -63,6 +73,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
+  },
+  tabScrollContent: {
+    paddingHorizontal: Spacing.one,
   },
   pressed: {
     opacity: 0.7,

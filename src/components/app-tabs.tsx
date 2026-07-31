@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
-import { Image } from 'react-native';
+
+import { TabIcon } from '@/components/navigation/tab-icon';
 
 export default function AppTabs() {
   return (
@@ -12,12 +13,12 @@ export default function AppTabs() {
         tabBarStyle: {
           backgroundColor: '#F7F5EF',
           borderTopColor: 'rgba(16, 32, 26, 0.12)',
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
+          height: 64,
+          paddingBottom: 6,
+          paddingTop: 6,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 10,
           fontWeight: '700',
         },
       }}
@@ -26,24 +27,35 @@ export default function AppTabs() {
         name="index"
         options={{
           title: 'Trang chủ',
-          tabBarIcon: ({ color }) => (
-            <Image
-              source={require('@assets/images/tabIcons/home.png')}
-              style={{ width: 22, height: 22, tintColor: color }}
-            />
-          ),
+          tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
           title: 'Khám phá',
-          tabBarIcon: ({ color }) => (
-            <Image
-              source={require('@assets/images/tabIcons/explore.png')}
-              style={{ width: 22, height: 22, tintColor: color }}
-            />
-          ),
+          tabBarIcon: ({ focused }) => <TabIcon emoji="🔍" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="bookings"
+        options={{
+          title: 'Đặt sân',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="📅" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: 'Thông báo',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="account"
+        options={{
+          title: 'Tài khoản',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
         }}
       />
     </Tabs>

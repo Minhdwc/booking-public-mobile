@@ -40,7 +40,9 @@ export const queryKeys = {
   },
   court: {
     list: () => ['courts', 'list'],
-    detail: (id: string) => ['courts', 'detail', id],
+    detail: (id: string) => ['courts', 'detail', id] as const,
+    availability: (courtId: string, date: string) =>
+      ['courts', 'availability', courtId, date] as const,
     create: () => ['courts', 'create'],
     edit: (id: string) => ['courts', 'edit', id],
     delete: (id: string) => ['courts', 'delete', id],
