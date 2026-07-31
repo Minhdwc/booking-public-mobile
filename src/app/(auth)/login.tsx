@@ -1,4 +1,4 @@
-import { Link, router, Stack } from 'expo-router';
+import { Link, router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,8 +8,10 @@ import { AuthHero } from '@/components/auth/auth-hero';
 import { AuthInput } from '@/components/auth/auth-input';
 import { loginSchema } from '@/features/auth/auth.schema';
 import { useAuth } from '@/features/auth/use-auth';
+import { useBookingDraftStore } from '@/features/bookings';
 
 export default function LoginScreen() {
+  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { signIn, isSubmitting, getErrorMessage } = useAuth();
 
   const [email, setEmail] = useState('');
@@ -27,6 +29,18 @@ export default function LoginScreen() {
 
     try {
       await signIn(parsed.data);
+
+      const draft = useBookingDraftStore.getState().draft;
+      if (draft && draft.selectedSlots.length > 0) {
+        router.replace('/checkout');
+        return;
+      }
+
+      if (typeof returnTo === 'string' && returnTo.startsWith('/')) {
+        router.replace(returnTo as `/courts/${string}` | '/');
+        return;
+      }
+
       router.replace('/');
     } catch (err) {
       setError(getErrorMessage(err));
