@@ -11,6 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 
 import { QueryProvider } from '@/providers/query-provider';
 import { useAuthStore } from '@/features/auth';
+import { SocketProvider } from '@/services/socket';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -26,24 +27,26 @@ export default function RootLayout() {
     <GestureHandler.GestureHandlerRootView style={{ flex: 1, backgroundColor: '#F7F5EF' }}>
       <SafeAreaProvider>
         <QueryProvider>
-          <View style={{ flex: 1, backgroundColor: '#F7F5EF' }}>
-            <StatusBar style="dark" />
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: '#F7F5EF' },
-                animation: 'default',
-              }}
-            >
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="venues" />
-              <Stack.Screen name="courts" />
-              <Stack.Screen name="checkout" />
-              <Stack.Screen name="booking" />
-              <Stack.Screen name="bookings" />
-            </Stack>
-          </View>
+          <SocketProvider>
+            <View style={{ flex: 1, backgroundColor: '#F7F5EF' }}>
+              <StatusBar style="dark" />
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: '#F7F5EF' },
+                  animation: 'default',
+                }}
+              >
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="venues" />
+                <Stack.Screen name="courts" />
+                <Stack.Screen name="checkout" />
+                <Stack.Screen name="booking" />
+                <Stack.Screen name="bookings" />
+              </Stack>
+            </View>
+          </SocketProvider>
         </QueryProvider>
       </SafeAreaProvider>
     </GestureHandler.GestureHandlerRootView>
