@@ -2,25 +2,19 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
-import { formatSlotTime } from '@/components/booking/booking-utils';
+import { formatBookingDate, formatSlotTime } from '@/components/booking/booking-utils';
 import { ErrorState, LoadingState, PrimaryButton, ScreenHeader } from '@/components/ui';
 import {
+  bookingsApi,
   draftToCreateBookingPayload,
   useBookingDetail,
   useBookingDraftStore,
   useCreateBooking,
-  bookingsApi,
 } from '@/features/bookings';
 import { isPaymentReturnSuccess, usePaymentFlow } from '@/features/payments';
 import { formatVnd } from '@/features/venues';
 import { useCountdown } from '@/lib/hooks/use-countdown';
 import { ApiError } from '@/services/http/errors';
-
-function formatBookingDate(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString('vi-VN');
-}
 
 export default function CheckoutScreen() {
   const { bookingId: bookingIdParam } = useLocalSearchParams<{ bookingId?: string }>();

@@ -110,6 +110,18 @@ export function formatSlotTime(value: string) {
   return value;
 }
 
+export function formatBookingDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString('vi-VN');
+}
+
+export function formatDateTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString('vi-VN');
+}
+
 export function slotKey(slot: Pick<SelectedSlot, 'startTime' | 'endTime'>) {
   return `${slot.startTime}|${slot.endTime}`;
 }

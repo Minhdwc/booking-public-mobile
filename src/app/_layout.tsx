@@ -41,6 +41,7 @@ export default function RootLayout() {
               <Stack.Screen name="courts" />
               <Stack.Screen name="checkout" />
               <Stack.Screen name="booking" />
+              <Stack.Screen name="bookings" />
             </Stack>
           </View>
         </QueryProvider>

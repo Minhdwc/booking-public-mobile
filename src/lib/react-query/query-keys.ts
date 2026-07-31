@@ -27,6 +27,7 @@ export const queryKeys = {
   booking: {
     list: () => ['booking', 'list'],
     detail: (id: string) => ['booking', 'detail', id],
+    timeline: (id: string) => ['booking', 'timeline', id] as const,
     create: () => ['booking', 'create'],
     edit: (id: string) => ['booking', 'edit', id],
     delete: (id: string) => ['booking', 'delete', id],
