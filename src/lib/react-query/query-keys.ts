@@ -61,7 +61,8 @@ export const queryKeys = {
     current: () => ['location', 'current'] as const,
   },
   notification: {
-    list: () => ['notifications', 'list'],
+    list: () => ['notifications', 'list'] as const,
+    unreadCount: () => ['notifications', 'unread-count'] as const,
     detail: (id: string) => ['notifications', 'detail', id],
     edit: (id: string) => ['notifications', 'edit', id],
   },
