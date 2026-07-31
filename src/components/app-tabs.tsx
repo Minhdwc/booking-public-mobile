@@ -1,18 +1,16 @@
 import { Tabs } from 'expo-router';
 import { Image } from 'react-native';
 
-const APP_BACKGROUND = '#F7F5EF';
-
 export default function AppTabs() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        sceneStyle: { backgroundColor: APP_BACKGROUND },
+        sceneStyle: { backgroundColor: '#F7F5EF' },
         tabBarActiveTintColor: '#10201A',
         tabBarInactiveTintColor: '#8FA69B',
         tabBarStyle: {
-          backgroundColor: APP_BACKGROUND,
+          backgroundColor: '#F7F5EF',
           borderTopColor: 'rgba(16, 32, 26, 0.12)',
           height: 60,
           paddingBottom: 8,

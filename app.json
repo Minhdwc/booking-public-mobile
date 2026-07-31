@@ -8,7 +8,11 @@
     "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Dùng vị trí của bạn để tính khoảng cách và chỉ đường đến sân.",
+        "LSApplicationQueriesSchemes": ["comgooglemaps", "googlemaps", "geo"]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -17,6 +21,7 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.mobile"
     },
@@ -27,6 +32,12 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Dùng vị trí của bạn để tính khoảng cách và chỉ đường đến sân."
+        }
+      ],
       [
         "expo-splash-screen",
         {
