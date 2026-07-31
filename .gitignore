@@ -47,3 +47,4 @@ example
 .agents/
 skills-lock.json
 /docs/
+.expo-web-test/
